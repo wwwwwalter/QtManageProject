@@ -31,17 +31,24 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
 //    stylesheet += "QListView::item:selected:!active{background-image: transparent;background-color: transparent;color: black;}";
 //    ui->listView->setStyleSheet(stylesheet);
 
-    model->appendRow(new QStandardItem(QIcon(":/images/folder_open.svg"),tr("FileProject")));
-    model->appendRow(new QStandardItem(QIcon(":/images/folder_open.svg"),tr("VideoProject")));
-    model->appendRow(new QStandardItem(QIcon(":/images/folder_open.svg"),tr("AudioProject")));
+    //add plugins to listview and stackedwidget
+    FileForm *fileForm = new FileForm;
+    VideoForm *videoForm = new VideoForm;
+    AudioForm *audioForm = new AudioForm;
+
+    model->appendRow(new QStandardItem(fileForm->getPluginIcon(),fileForm->getPluginName()));
+    model->appendRow(new QStandardItem(videoForm->getPluginIcon(),videoForm->getPluginName()));
+    model->appendRow(new QStandardItem(audioForm->getPluginIcon(),audioForm->getPluginName()));
 
     //stackedWidet
     while(ui->stackedWidget->currentWidget()){
         ui->stackedWidget->removeWidget(ui->stackedWidget->currentWidget());
     }
-    ui->stackedWidget->addWidget(new FileForm);
-    ui->stackedWidget->addWidget(new VideoForm);
-    ui->stackedWidget->addWidget(new AudioForm);
+
+
+    ui->stackedWidget->addWidget(fileForm);
+    ui->stackedWidget->addWidget(videoForm);
+    ui->stackedWidget->addWidget(audioForm);
 
     connect(ui->listView,&QListView::pressed,ui->stackedWidget,[&](const QModelIndex &index){
         ui->stackedWidget->setCurrentIndex(index.row());
@@ -49,6 +56,12 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
 
 
 
+    //OK
+    connect(ui->buttonBox,&QDialogButtonBox::accepted,this,[=]{
+        //QWidget to AbstractPlug class
+        //call virtural function
+        static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject();
+    });
 
 
 

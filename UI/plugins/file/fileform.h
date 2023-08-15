@@ -3,12 +3,13 @@
 
 #include <QDir>
 #include <QWidget>
+#include "../abstract/abstrackplugin.h"
 
 namespace Ui {
 class FileForm;
 }
 
-class FileForm : public QWidget
+class FileForm : public AbstrackPlugin
 {
     Q_OBJECT
 
@@ -22,6 +23,10 @@ private:
     QString projectName;
     QDir workPath;
     QStringList templeteList;
+
+    // AbstrackPlugin interface
+public:
+    virtual void doCreateProject();
 };
 
 #endif // FILEFORM_H

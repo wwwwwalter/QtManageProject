@@ -1,14 +1,15 @@
 #ifndef AUDIOFORM_H
 #define AUDIOFORM_H
 
-#include <QWidget>
 #include <QDir>
+#include <QWidget>
+#include "../abstract/abstrackplugin.h"
 
 namespace Ui {
 class AudioForm;
 }
 
-class AudioForm : public QWidget
+class AudioForm : public AbstrackPlugin
 {
     Q_OBJECT
 
@@ -21,8 +22,16 @@ private:
 
 private:
     QString projectName;
-    QDir workPath;
+    QDir projectDir;
     QStringList templeteList;
+
+public:
+    void doCreate();
+
+
+    // AbstrackPlugin interface
+public:
+    virtual void doCreateProject();
 
 };
 

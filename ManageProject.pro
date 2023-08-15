@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     UI/newproject/newprojectdialog.cpp \
+    UI/plugins/abstract/abstrackplugin.cpp \
     UI/plugins/audio/audioform.cpp \
     UI/plugins/file/fileform.cpp \
     UI/plugins/video/videoform.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 
 HEADERS += \
     UI/newproject/newprojectdialog.h \
+    UI/plugins/abstract/abstrackplugin.h \
     UI/plugins/audio/audioform.h \
     UI/plugins/file/fileform.h \
     UI/plugins/video/videoform.h \
