@@ -5,17 +5,110 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QApplication>
+#include <QStyleFactory>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
 
-    // 创建菜单栏和子菜单
-    fileMenu = new QMenu("文件", this);
-    projectMenu = new QMenu("项目", this);
-    menuBar()->addMenu(fileMenu);
-    menuBar()->addMenu(projectMenu);
+    this->setupUi();
+    setGeometry(1300,100,400,800);
 
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+
+
+
+
+
+
+
+
+
+    //newProjectDialog
+    //newProJectDialog = new NewProjectDialog(this);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // 初始化项目目录
+    projectDir = QDir::homePath();
+    currentProjectName = "";
+    isProjectOpen = false;
+
+
+
+
+
+
+
+
+
+
+    // 初始化项目树视图
+    projectTreeView = new QTreeView;
+    fileSystemModel = new QFileSystemModel;
+    fileSystemModel->setRootPath(QDir::homePath());
+
+    projectTreeView->setModel(fileSystemModel);
+    projectTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()));
+    projectTreeView->setColumnWidth(0, 200);
+
+    setCentralWidget(projectTreeView);
+
+
+
+
+
+
+
+    //projectTreeView->setHorizontalHeaderLabels(QStringList() << "文件夹" << "文件名");
+    //projectTreeView->setColumnWidth(0, 200);
+    //projectTreeView->setColumnWidth(1, 200);
+    //setCentralWidget(projectTreeView);
+
+    // 初始化文件树视图
+    //fileTreeView = new QTreeView(this);
+    //fileTreeView->setModel(fileSystemModel);
+    //fileTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()));
+    //fileTreeView->setHorizontalHeaderLabels(QStringList() << "文件夹" << "文件名");
+    //fileTreeView->setColumnWidth(0, 200);
+    //fileTreeView->setColumnWidth(1, 200);
+    //setCentralWidget(fileTreeView);
+
+
+
+
+
+//    connect(fileTreeView, &QTreeView::clicked, this, &MainWindow::slotOpenFile);
+//    connect(fileTreeView, &QTreeView::doubleClicked, this, &MainWindow::slotOpenFile);
+
+
+
+
+
+
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::setupUi()
+{
     // 创建新项目的 QAction
     newProjectAction = new QAction("新建项目", this);
     newProjectAction->setShortcut(QKeySequence("Ctrl+N"));
@@ -116,13 +209,10 @@ MainWindow::MainWindow(QWidget *parent)
     fileMenu->addSeparator();
     fileMenu->addAction(addFileToProjectAction);
     fileMenu->addAction(removeFileFromProjectAction);
-    fileMenu->addSeparator();
     fileMenu->addAction(viewProjectFilesAction);
     fileMenu->addSeparator();
     fileMenu->addAction(sortFilesAction);
-    fileMenu->addSeparator();
     fileMenu->addAction(refreshProjectTreeAction);
-    fileMenu->addSeparator();
     fileMenu->addAction(updateProjectTreeAction);
     fileMenu->addSeparator();
     fileMenu->addAction(deleteFileAction);
@@ -179,89 +269,29 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 初始化状态栏
     statusBar()->showMessage("欢迎使用 Qt Creator！");
-
-    // 初始化项目目录
-    projectDir = QDir::homePath();
-    qDebug()<<projectDir.path();
-    currentProjectName = "";
-    isProjectOpen = false;
-
-
-
-
-    //widget
-    QWidget *w = new QWidget;
-    setCentralWidget(w);
-    QVBoxLayout *vboxlayout = new QVBoxLayout;
-    w->setLayout(vboxlayout);
-
-
-
-
-
-    // 初始化项目树视图
-    projectTreeView = new QTreeView;
-    fileSystemModel = new QFileSystemModel;
-    fileSystemModel->setRootPath(QDir::homePath());
-    projectTreeView->setModel(fileSystemModel);
-    projectTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()));
-    //setCentralWidget(projectTreeView);
-
-    projectTreeView->setColumnWidth(0,300);
-
-    vboxlayout->addWidget(projectTreeView);
-
-
-
-
-    //projectTreeView->setHorizontalHeaderLabels(QStringList() << "文件夹" << "文件名");
-    //projectTreeView->setColumnWidth(0, 200);
-    //projectTreeView->setColumnWidth(1, 200);
-    setCentralWidget(projectTreeView);
-
-    // 初始化文件树视图
-    fileTreeView = new QTreeView(this);
-    fileTreeView->setModel(fileSystemModel);
-    fileTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()));
-    //fileTreeView->setHorizontalHeaderLabels(QStringList() << "文件夹" << "文件名");
-    //fileTreeView->setColumnWidth(0, 200);
-    //fileTreeView->setColumnWidth(1, 200);
-    //setCentralWidget(fileTreeView);
-
-
-
-
-
-//    connect(fileTreeView, &QTreeView::clicked, this, &MainWindow::slotOpenFile);
-//    connect(fileTreeView, &QTreeView::doubleClicked, this, &MainWindow::slotOpenFile);
-
-
-
-
-
-
-}
-
-MainWindow::~MainWindow()
-{
 }
 
 void MainWindow::slotNewProject()
 {
+
+    NewProjectDialog newProjectDialog(this);
+    newProjectDialog.exec();
+
+
     // 新建项目
-    currentProjectName = QFileDialog::getSaveFileName(this, "新建项目", projectDir.path(), "Qt 项目(*.qpr)");
-    if (!currentProjectName.isEmpty()) {
-        // 创建项目文件
-        QFile projectFile(currentProjectName);
-        if (projectFile.open(QIODevice::WriteOnly)) {
-            QTextStream stream(&projectFile);
-            stream << "Qt 项目\n";
-            projectFile.close();
-            // 更新项目树视图
-            //refreshProjectTree();
-        } else {
-            QMessageBox::critical(this, "错误", "无法创建项目文件");
-        }
-    }
+//    currentProjectName = QFileDialog::getSaveFileName(this, "新建项目", projectDir.path(), "Qt 项目(*.qpr)");
+//    if (!currentProjectName.isEmpty()) {
+//        // 创建项目文件
+//        QFile projectFile(currentProjectName);
+//        if (projectFile.open(QIODevice::WriteOnly)) {
+//            QTextStream stream(&projectFile);
+//            stream << "Qt 项目\n";
+//            projectFile.close();
+//            // 更新项目树视图
+//            //refreshProjectTree();
+//        } else {
+//            QMessageBox::critical(this, "错误", "无法创建项目文件");
+//        }
+//    }
 }
 

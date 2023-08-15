@@ -7,6 +7,8 @@
 #include <QMainWindow>
 #include <QToolBar>
 #include <QTreeView>
+#include "UI/newproject/newprojectdialog.h"
+
 
 class MainWindow : public QMainWindow
 {
@@ -15,6 +17,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setupUi();
 
 
 
@@ -94,6 +97,9 @@ private:
     QString currentProjectName;
     QString currentFileName;
     bool isProjectOpen;
+
+private:
+    NewProjectDialog *newProJectDialog;
 };
 
 #endif
