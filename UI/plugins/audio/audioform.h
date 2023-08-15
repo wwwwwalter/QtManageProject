@@ -22,7 +22,7 @@ private:
 
 private:
     QString projectName;
-    QDir projectDir;
+    QDir workDir;
     QStringList templeteList;
 
 public:

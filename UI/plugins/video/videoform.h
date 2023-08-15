@@ -21,7 +21,7 @@ private:
     Ui::VideoForm *ui;
 
     QString projectName;
-    QDir projectDir;
+    QDir workDir;
     QStringList templeteList;
 
 

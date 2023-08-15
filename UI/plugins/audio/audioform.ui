@@ -29,7 +29,7 @@
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Project Dir</string>
+           <string>Work Dir</string>
           </property>
          </widget>
         </item>
@@ -52,7 +52,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QLineEdit" name="projectDir"/>
+           <widget class="QLineEdit" name="workDir"/>
           </item>
           <item>
            <widget class="QPushButton" name="choose">

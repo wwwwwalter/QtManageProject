@@ -1,6 +1,7 @@
 #include "audioform.h"
 #include "ui_audioform.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 
 AudioForm::AudioForm(QWidget *parent) :
@@ -13,14 +14,14 @@ AudioForm::AudioForm(QWidget *parent) :
     setPluginName(tr("AudioForm"));
 
     //for right widget
-    projectDir = QDir::homePath();
-    ui->projectDir->setText(projectDir.path());
+    workDir = QDir::homePath();
+    ui->workDir->setText(workDir.path());
     templeteList<<tr("单声道")<<tr("立体声");
     ui->comboBox->addItems(templeteList);
 
     //choose work path
     connect(ui->choose,&QPushButton::clicked,this,[=]{
-        ui->projectDir->setText(QFileDialog::getExistingDirectory(this,tr("Project Dir"),ui->projectDir->text()));
+        ui->workDir->setText(QFileDialog::getExistingDirectory(this,tr("Project Dir"),ui->workDir->text()));
     });
 }
 
@@ -33,7 +34,33 @@ AudioForm::~AudioForm()
 void AudioForm::doCreateProject()
 {
     projectName = ui->projectName->text();
-    projectDir = ui->projectDir->text();
-    qDebug()<<"audio ok";
+    workDir = ui->workDir->text();
+
+    if(projectName.isEmpty()||workDir.path().isEmpty()){
+        return;
+    }
+
+    QDir projectDir = workDir.path()+QDir::separator()+projectName;
+    QFile projectFile = projectDir.path()+QDir::separator()+projectName+".xplayer";
+
+    if(workDir.mkpath(projectDir.path())){
+        if(projectFile.open(QIODevice::WriteOnly)){
+            QTextStream stream(&projectFile);
+            stream << "[XPlayer]\n";
+            stream << "Audio\n";
+            stream << "[Audio]\n";
+            stream << "[Template]\n";
+            stream << ui->comboBox->currentText();
+
+            projectFile.close();
+            //QMessageBox::information(this, "information", "create project complete");
+        }
+        else{
+            QMessageBox::critical(this, "critical", "projectFile already exists");
+        }
+    }
+    else{
+        QMessageBox::critical(this, "critical", "projectDir already exists");
+    }
 }
 

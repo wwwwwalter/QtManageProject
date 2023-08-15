@@ -15,8 +15,8 @@ FileForm::FileForm(QWidget *parent) :
     setPluginName(tr("FileForm"));
 
     //for right widget
-    workPath = QDir::homePath();
-    ui->workPath->setText(workPath.path());
+    workDir = QDir::homePath();
+    ui->workDir->setText(workDir.path());
     templeteList<<tr("tab")<<tr("file");
     ui->comboBox->addItems(templeteList);
 
@@ -24,7 +24,7 @@ FileForm::FileForm(QWidget *parent) :
 
     //choose work path
     connect(ui->choose,&QPushButton::clicked,this,[=]{
-        ui->workPath->setText(QFileDialog::getExistingDirectory(this,tr("Project Dir"),ui->workPath->text()));
+        ui->workDir->setText(QFileDialog::getExistingDirectory(this,tr("Project Dir"),ui->workDir->text()));
     });
 
 
@@ -42,19 +42,16 @@ FileForm::~FileForm()
 void FileForm::doCreateProject()
 {
     projectName = ui->projectName->text();
-    workPath = ui->workPath->text();
+    workDir = ui->workDir->text();
 
-    if(projectName.isEmpty()||workPath.path().isEmpty()){
+    if(projectName.isEmpty()||workDir.path().isEmpty()){
         return;
     }
 
-    QDir projectDir = workPath.path()+QDir::separator()+projectName;
+    QDir projectDir = workDir.path()+QDir::separator()+projectName;
     QFile projectFile = projectDir.path()+QDir::separator()+projectName+".xplayer";
 
-    qDebug()<<projectFile.fileName();
-
-
-    if(workPath.mkpath(projectDir.path())){
+    if(workDir.mkpath(projectDir.path())){
         if(projectFile.open(QIODevice::WriteOnly)){
             QTextStream stream(&projectFile);
             stream << "[XPlayer]\n";
@@ -64,7 +61,7 @@ void FileForm::doCreateProject()
             stream << ui->comboBox->currentText();
 
             projectFile.close();
-            QMessageBox::information(this, "information", "create project complete");
+            //QMessageBox::information(this, "information", "create project complete");
         }
         else{
             QMessageBox::critical(this, "critical", "projectFile already exists");

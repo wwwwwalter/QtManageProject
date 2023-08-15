@@ -1,6 +1,7 @@
 #include "videoform.h"
 #include "ui_videoform.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 VideoForm::VideoForm(QWidget *parent) :
     AbstrackPlugin(parent),
@@ -13,14 +14,14 @@ VideoForm::VideoForm(QWidget *parent) :
     setPluginName(tr("VideoForm"));
 
     //for right widget
-    projectDir = QDir::homePath();
-    ui->projectDir->setText(projectDir.path());
+    workDir = QDir::homePath();
+    ui->workDir->setText(workDir.path());
     templeteList<<tr("grid")<<tr("splitter");
     ui->comboBox->addItems(templeteList);
 
     //choose work path
     connect(ui->choose,&QPushButton::clicked,this,[=]{
-        ui->projectDir->setText(QFileDialog::getExistingDirectory(this,tr("Project Dir"),ui->projectDir->text()));
+        ui->workDir->setText(QFileDialog::getExistingDirectory(this,tr("Work Dir"),ui->workDir->text()));
     });
 }
 
@@ -33,6 +34,32 @@ VideoForm::~VideoForm()
 void VideoForm::doCreateProject()
 {
     projectName = ui->projectName->text();
-    projectDir = ui->projectDir->text();
-    qDebug()<<"video ok";
+    workDir = ui->workDir->text();
+
+    if(projectName.isEmpty()||workDir.path().isEmpty()){
+        return;
+    }
+
+    QDir projectDir = workDir.path()+QDir::separator()+projectName;
+    QFile projectFile = projectDir.path()+QDir::separator()+projectName+".xplayer";
+
+    if(workDir.mkpath(projectDir.path())){
+        if(projectFile.open(QIODevice::WriteOnly)){
+            QTextStream stream(&projectFile);
+            stream << "[XPlayer]\n";
+            stream << "Video\n";
+            stream << "[Video]\n";
+            stream << "[Template]\n";
+            stream << ui->comboBox->currentText();
+
+            projectFile.close();
+            //QMessageBox::information(this, "information", "create project complete");
+        }
+        else{
+            QMessageBox::critical(this, "critical", "projectFile already exists");
+        }
+    }
+    else{
+        QMessageBox::critical(this, "critical", "projectDir already exists");
+    }
 }

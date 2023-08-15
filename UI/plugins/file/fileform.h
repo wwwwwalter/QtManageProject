@@ -21,7 +21,7 @@ private:
     Ui::FileForm *ui;
 
     QString projectName;
-    QDir workPath;
+    QDir workDir;
     QStringList templeteList;
 
     // AbstrackPlugin interface
