@@ -33,6 +33,9 @@ private:
     QStandardItemModel *model;
     QItemSelectionModel *itemSelectionModel;
 
+
+
+
 };
 
 #endif // NEWPROJECTDIALOG_H

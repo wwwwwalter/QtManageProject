@@ -31,7 +31,7 @@ public:
 
     // AbstrackPlugin interface
 public:
-    virtual void doCreateProject();
+    virtual int doCreateProject();
 
 };
 

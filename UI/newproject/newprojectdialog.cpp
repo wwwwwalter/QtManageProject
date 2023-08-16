@@ -1,6 +1,7 @@
 #include "newprojectdialog.h"
 #include "ui_newprojectdialog.h"
 
+#include <QCloseEvent>
 #include <QFileDialog>
 
 NewProjectDialog::NewProjectDialog(QWidget *parent) :
@@ -60,7 +61,17 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
     connect(ui->buttonBox,&QDialogButtonBox::accepted,this,[=]{
         //QWidget to AbstractPlug class
         //call virtural function
-        static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject();
+        if(static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject()==0){
+            this->accept();
+        }
+
+
+    });
+
+
+    //Cancel
+    connect(ui->buttonBox,&QDialogButtonBox::rejected,this,[=]{
+        this->reject();
     });
 
 
@@ -78,3 +89,6 @@ NewProjectDialog::~NewProjectDialog()
 {
     delete ui;
 }
+
+
+

@@ -22,7 +22,7 @@ public:
     void setPluginName(const QString &newPluginName);
 
 public:
-    virtual void doCreateProject() = 0;
+    virtual int doCreateProject() = 0;
 
 signals:
 

@@ -28,7 +28,7 @@ private:
 
     // AbstrackPlugin interface
 public:
-    virtual void doCreateProject();
+    virtual int doCreateProject();
 };
 
 #endif // VIDEOFORM_H

@@ -31,36 +31,40 @@ AudioForm::~AudioForm()
 }
 
 
-void AudioForm::doCreateProject()
+int AudioForm::doCreateProject()
 {
     projectName = ui->projectName->text();
     workDir = ui->workDir->text();
 
+
     if(projectName.isEmpty()||workDir.path().isEmpty()){
-        return;
+        ui->tips->clear();
+        ui->tips->setText(tr("Tips: INVALID PARAMETER VALUE"));
     }
 
     QDir projectDir = workDir.path()+QDir::separator()+projectName;
     QFile projectFile = projectDir.path()+QDir::separator()+projectName+".xplayer";
 
-    if(workDir.mkpath(projectDir.path())){
-        if(projectFile.open(QIODevice::WriteOnly)){
-            QTextStream stream(&projectFile);
-            stream << "[XPlayer]\n";
-            stream << "Audio\n";
-            stream << "[Audio]\n";
-            stream << "[Template]\n";
-            stream << ui->comboBox->currentText();
+    if(!projectDir.exists()){
+        if(workDir.mkpath(projectDir.path())){
+            if(projectFile.open(QIODevice::WriteOnly)){
+                QTextStream stream(&projectFile);
+                stream << "[XPlayer]\n";
+                stream << "Audio\n";
+                stream << "[Audio]\n";
+                stream << "[Template]\n";
+                stream << ui->comboBox->currentText();
 
-            projectFile.close();
-            //QMessageBox::information(this, "information", "create project complete");
-        }
-        else{
-            QMessageBox::critical(this, "critical", "projectFile already exists");
+                projectFile.close();
+                return 0;
+                //QMessageBox::information(this, "information", "create project complete");
+            }
         }
     }
     else{
-        QMessageBox::critical(this, "critical", "projectDir already exists");
+        ui->tips->clear();
+        ui->tips->setText(tr("Tips: %1 is already exists!").arg(projectDir.path()));
     }
+    return -1;
 }
 

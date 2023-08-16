@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     fileSystemModel->setRootPath(QDir::homePath());
 
     projectTreeView->setModel(fileSystemModel);
-    projectTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()+QDir::separator()+"xplayerproject"));
+    projectTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()+QDir::separator()+"project"+QDir::separator()+"xplayerproject"));
     projectTreeView->setColumnWidth(0, 200);
 
     setCentralWidget(projectTreeView);
@@ -275,10 +275,9 @@ void MainWindow::slotNewProject()
 {
 
     NewProjectDialog newProjectDialog(this);
-    if(newProjectDialog.exec() == QDialog::Accepted){
+    if (newProjectDialog.exec() == QDialog::Accepted) {
 
     }
-
 
     // 新建项目
 //    currentProjectName = QFileDialog::getSaveFileName(this, "新建项目", projectDir.path(), "Qt 项目(*.qpr)");
