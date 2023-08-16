@@ -17,17 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
-
-
-
-
-
-
-
-
-    //newProjectDialog
-    //newProJectDialog = new NewProjectDialog(this);
-
+    QTabWidget *tabWidget = new QTabWidget;
+    setCentralWidget(tabWidget);
 
 
 
@@ -44,10 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-    // 初始化项目目录
-    projectDir = QDir::homePath();
-    currentProjectName = "";
-    isProjectOpen = false;
 
 
 
@@ -58,16 +45,43 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-    // 初始化项目树视图
-    projectTreeView = new QTreeView;
+
+    // init File system view
+    fileSystemDir = QDir::homePath();
+
+
+
+    fileSystemTreeView = new QTreeView;
     fileSystemModel = new QFileSystemModel;
     fileSystemModel->setRootPath(QDir::homePath());
 
-    projectTreeView->setModel(fileSystemModel);
-    projectTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()+QDir::separator()+"project"+QDir::separator()+"xplayerproject"));
-    projectTreeView->setColumnWidth(0, 200);
+    fileSystemTreeView->setModel(fileSystemModel);
+    fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemDir.path()));
+    fileSystemTreeView->setColumnWidth(0, 200);
 
-    setCentralWidget(projectTreeView);
+    tabWidget->addTab(fileSystemTreeView,tr("File System"));
+
+
+
+
+
+    // init project view
+    projectTreeView = new QTreeView;
+    projectModel = new QStandardItemModel;
+    projectTreeView->setModel(projectModel);
+    tabWidget->addTab(projectTreeView,tr("Projects"));
+    tabWidget->setCurrentWidget(projectTreeView);
+
+
+
+    //create project
+
+
+
+
+
+
+
 
 
 
@@ -274,25 +288,40 @@ void MainWindow::setupUi()
 void MainWindow::slotNewProject()
 {
 
-    NewProjectDialog newProjectDialog(this);
-    if (newProjectDialog.exec() == QDialog::Accepted) {
+    NewProjectDialog *newProjectDialog = new NewProjectDialog(this);
+    connect(newProjectDialog,&NewProjectDialog::accepted,this,[=]{
+        QDir projectDir  = newProjectDialog->getProjectDir();
+        if(!projectDir.path().isEmpty()){
+            setCurrentProjectDir(projectDir);
+        }
+    });
+    connect(newProjectDialog,&NewProjectDialog::rejected,this,[=]{
+    });
 
-    }
+    newProjectDialog->exec();
+    newProjectDialog->deleteLater();
 
-    // 新建项目
-//    currentProjectName = QFileDialog::getSaveFileName(this, "新建项目", projectDir.path(), "Qt 项目(*.qpr)");
-//    if (!currentProjectName.isEmpty()) {
-//        // 创建项目文件
-//        QFile projectFile(currentProjectName);
-//        if (projectFile.open(QIODevice::WriteOnly)) {
-//            QTextStream stream(&projectFile);
-//            stream << "Qt 项目\n";
-//            projectFile.close();
-//            // 更新项目树视图
-//            //refreshProjectTree();
-//        } else {
-//            QMessageBox::critical(this, "错误", "无法创建项目文件");
-//        }
-//    }
+}
+
+void MainWindow::slotOpenProject()
+{
+
+}
+
+void MainWindow::slotNewFile()
+{
+
+}
+
+void MainWindow::slotRefreshProjectTree()
+{
+
+}
+
+void MainWindow::setCurrentProjectDir(QDir projectDir)
+{
+    currentProjectDir = projectDir;
+    qDebug()<<currentProjectDir;
+    slotRefreshProjectTree();
 }
 

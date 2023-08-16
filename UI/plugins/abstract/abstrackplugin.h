@@ -3,6 +3,7 @@
 
 #include <QIcon>
 #include <QWidget>
+#include <QDir>
 
 
 class AbstrackPlugin : public QWidget
@@ -22,7 +23,7 @@ public:
     void setPluginName(const QString &newPluginName);
 
 public:
-    virtual int doCreateProject() = 0;
+    virtual QDir doCreateProject() = 0;
 
 signals:
 

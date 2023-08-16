@@ -61,11 +61,8 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
     connect(ui->buttonBox,&QDialogButtonBox::accepted,this,[=]{
         //QWidget to AbstractPlug class
         //call virtural function
-        if(static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject()==0){
-            this->accept();
-        }
-
-
+        projectDir =  static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject();
+        this->accept();
     });
 
 
@@ -88,6 +85,11 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
 NewProjectDialog::~NewProjectDialog()
 {
     delete ui;
+}
+
+QDir NewProjectDialog::getProjectDir()
+{
+    return projectDir;
 }
 
 

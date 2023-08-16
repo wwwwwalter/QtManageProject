@@ -2,6 +2,7 @@
 #define NEWPROJECTDIALOG_H
 
 #include <QDialog>
+#include <QDir>
 #include <QItemSelectionModel>
 #include <QStandardItemModel>
 #include "../plugins/file/fileform.h"
@@ -24,6 +25,15 @@ private:
     Ui::NewProjectDialog *ui;
 
 
+    //project info
+private:
+    QDir projectDir;
+public:
+    QDir getProjectDir();
+
+
+
+    //plugins
 private:
     FileForm *fileForm;
     VideoForm *videoForm;

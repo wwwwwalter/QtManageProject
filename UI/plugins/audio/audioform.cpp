@@ -31,7 +31,7 @@ AudioForm::~AudioForm()
 }
 
 
-int AudioForm::doCreateProject()
+QDir AudioForm::doCreateProject()
 {
     projectName = ui->projectName->text();
     workDir = ui->workDir->text();
@@ -56,7 +56,7 @@ int AudioForm::doCreateProject()
                 stream << ui->comboBox->currentText();
 
                 projectFile.close();
-                return 0;
+                return projectDir;
                 //QMessageBox::information(this, "information", "create project complete");
             }
         }
@@ -65,6 +65,6 @@ int AudioForm::doCreateProject()
         ui->tips->clear();
         ui->tips->setText(tr("Tips: %1 is already exists!").arg(projectDir.path()));
     }
-    return -1;
+    return QDir();
 }
 

@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileSystemModel>
+#include <QFileSystemWatcher>
 #include <QMainWindow>
 #include <QToolBar>
 #include <QTreeView>
@@ -43,8 +44,8 @@ private:
 
 private slots:
     void slotNewProject();
-//    void slotNewFile();
-//    void slotOpenProject();
+    void slotNewFile();
+    void slotOpenProject();
 //    void slotSaveProject();
 //    void slotSaveAsProject();
 //    void slotRenameProject();
@@ -58,12 +59,20 @@ private slots:
 //    void slotRemoveFileFromProject();
 //    void slotViewProjectFiles();
 //    void slotSortFiles();
-//    void slotRefreshProjectTree();
+    void slotRefreshProjectTree();
 //    void slotUpdateProjectTree();
 
 private:
-    QTreeView *projectTreeView;
+    QTreeView *fileSystemTreeView;
     QFileSystemModel *fileSystemModel;
+    QFileSystemWatcher *fileSystemWatcher;
+    QDir fileSystemDir;
+
+    QTreeView *projectTreeView;
+    QStandardItemModel *projectModel;
+    QDir projectDir;
+
+
     QTreeView *fileTreeView;
     QLineEdit *projectNameEdit;
     QLineEdit *fileNameEdit;
@@ -93,13 +102,14 @@ private:
     QAction *updateProjectTreeAction;
     QToolBar *fileToolBar;
     QToolBar *projectToolBar;
-    QDir projectDir;
     QString currentProjectName;
     QString currentFileName;
     bool isProjectOpen;
 
-private:
-    NewProjectDialog *newProJectDialog;
+    QDir currentProjectDir;
+    void setCurrentProjectDir(QDir projectDir);
+
+
 };
 
 #endif

@@ -26,7 +26,7 @@ private:
 
     // AbstrackPlugin interface
 public:
-    virtual int doCreateProject();
+    virtual QDir doCreateProject();
 };
 
 #endif // FILEFORM_H
