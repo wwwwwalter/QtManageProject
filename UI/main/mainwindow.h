@@ -84,7 +84,7 @@ private:
     //第一等级函数
 private slots:
     void slotNewProject();
-    //void slotCloseProject();
+    void slotCloseProject();
 
 
     //第二等级函数

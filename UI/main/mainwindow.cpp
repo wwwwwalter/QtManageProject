@@ -36,6 +36,19 @@ MainWindow::MainWindow(QWidget *parent)
     projectModel = new QStandardItemModel;
     ui->projectTreeView->setModel(projectModel);
     ui->projectTreeView->header()->hide();
+    ui->projectTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->projectTreeView,&QTreeView::customContextMenuRequested,this,[=](const QPoint &pos){
+        qDebug()<<pos;
+        QMenu projectTreeViewMenu(ui->projectTreeView);
+        projectTreeViewMenu.addAction(openFileAction);
+        projectTreeViewMenu.addAction(deleteFileAction);
+        projectTreeViewMenu.exec(QCursor::pos());
+    });
+
+
+
+
+
 
 
 
@@ -208,7 +221,7 @@ void MainWindow::setupUi()
 //    connect(saveProjectAction, &QAction::triggered, this, &MainWindow::slotSaveProject);
 //    connect(saveAsProjectAction, &QAction::triggered, this, &MainWindow::slotSaveAsProject);
 //    connect(renameProjectAction, &QAction::triggered, this, &MainWindow::slotRenameProject);
-//    connect(deleteProjectAction, &QAction::triggered, this, &MainWindow::slotDeleteProject);
+    connect(deleteProjectAction, &QAction::triggered, this, &MainWindow::slotCloseProject);
 //    connect(openFileAction, &QAction::triggered, this, &MainWindow::slotOpenFile);
 //    connect(saveFileAction, &QAction::triggered, this, &MainWindow::slotSaveFile);
 //    connect(saveAsFileAction, &QAction::triggered, this, &MainWindow::slotSaveAsFile);
@@ -290,6 +303,12 @@ void MainWindow::slotNewProject()
 
 
 
+}
+
+void MainWindow::slotCloseProject()
+{
+    QStandardItem *projectModelRootItem =  projectModel->invisibleRootItem();
+    projectModel->removeRow(0);
 }
 
 

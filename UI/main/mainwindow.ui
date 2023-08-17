@@ -91,6 +91,9 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QTreeView" name="projectTreeView">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
            <attribute name="headerVisible">
             <bool>false</bool>
            </attribute>
@@ -104,7 +107,11 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QTreeView" name="fileSystemTreeView"/>
+          <widget class="QTreeView" name="fileSystemTreeView">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -115,7 +122,7 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
    <property name="allowedAreas">
-    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -225,7 +232,11 @@
    <widget class="QWidget" name="dockWidgetContents_5">
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
-      <widget class="QListView" name="playListView1"/>
+      <widget class="QListView" name="playListView1">
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
