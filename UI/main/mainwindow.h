@@ -94,18 +94,25 @@ private:
     QFileDialog *fileDialog;
     QMenu *fileMenu;
     QMenu *projectMenu;
-    QAction *newProjectAction;
-    QAction *newFileAction;
+
+
 
     QAction *saveProjectAction;
     QAction *saveAsProjectAction;
     QAction *renameProjectAction;
+
+    QAction *newProjectAction;
     QAction *deleteProjectAction;
     QAction *closeProjectAction;
     QAction *activeProjectAction;
     QAction *openProjectAction;
 
     QAction *openFileAction;
+    QAction *newFileAction;
+
+
+
+
     QAction *saveFileAction;
     QAction *saveAsFileAction;
     QAction *renameFileAction;

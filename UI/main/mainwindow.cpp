@@ -75,6 +75,7 @@ void MainWindow::addProjectToProjectTree(QDir projectDir)
 {
     QStandardItem *projectItem = new QStandardItem(folderIcon,projectDir.dirName());
     projectItem->setData(QString("projectfolder"),Qt::UserRole+1);
+    projectItem->setData(projectDir.path(),Qt::UserRole+2);
     projectModel->appendRow(projectItem);
     getDirContents(projectDir,projectItem);
     ui->projectTreeView->setExpanded(projectModel->indexFromItem(projectItem),true);
@@ -155,6 +156,21 @@ void MainWindow::slotActiveProject()
 
 void MainWindow::slotNewFile()
 {
+    //NewFileDialog
+    QModelIndex projectIndex = selectedItemModelIndex;
+    while(projectIndex.data(Qt::UserRole+1)!=QString("projectfolder")){
+        projectIndex = projectIndex.parent();
+    }
+
+    QDir projectDir(projectIndex.data(Qt::UserRole+2).toString());
+    QFile projectFile = projectDir.path() + QDir::separator()+"/spaces/video.space";
+    qDebug()<<projectFile.fileName();
+
+    if(projectFile.open(QIODevice::NewOnly)){
+        projectFile.close();
+    }
+
+    //add new to model
 
 }
 
@@ -300,7 +316,7 @@ void MainWindow::setupUi()
     connect(newProjectAction, &QAction::triggered, this, &MainWindow::slotNewProject);
     connect(openProjectAction, &QAction::triggered, this, &MainWindow::slotOpenProject);
     connect(closeProjectAction,&QAction::triggered,this,&MainWindow::slotCloseProject);
-//    connect(newFileAction, &QAction::triggered, this, &MainWindow::slotNewFile);
+    connect(newFileAction, &QAction::triggered, this, &MainWindow::slotNewFile);
 
 //    connect(saveProjectAction, &QAction::triggered, this, &MainWindow::slotSaveProject);
 //    connect(saveAsProjectAction, &QAction::triggered, this, &MainWindow::slotSaveAsProject);
@@ -319,27 +335,27 @@ void MainWindow::setupUi()
 //    connect(updateProjectTreeAction, &QAction::triggered, this, &MainWindow::slotUpdateProjectTree);
 //    connect(deleteFileAction, &QAction::triggered, this, &MainWindow::slotDeleteFile);
 
-    // 初始化工具栏
-    projectToolBar = addToolBar("项目");
-    projectToolBar->addAction(newProjectAction);
-    projectToolBar->addAction(newFileAction);
-    projectToolBar->addAction(openProjectAction);
-    projectToolBar->addAction(saveProjectAction);
-    projectToolBar->addAction(saveAsProjectAction);
-    projectToolBar->addAction(renameProjectAction);
-    projectToolBar->addAction(deleteProjectAction);
-    fileToolBar = addToolBar("文件");
-    fileToolBar->addAction(openFileAction);
-    fileToolBar->addAction(saveFileAction);
-    fileToolBar->addAction(saveAsFileAction);
-    fileToolBar->addAction(renameFileAction);
-    fileToolBar->addAction(deleteFileAction);
-    fileToolBar->addAction(addFileToProjectAction);
-    fileToolBar->addAction(removeFileFromProjectAction);
-    fileToolBar->addAction(viewProjectFilesAction);
-    fileToolBar->addAction(sortFilesAction);
-    fileToolBar->addAction(refreshProjectTreeAction);
-    fileToolBar->addAction(updateProjectTreeAction);
+//    // 初始化工具栏
+//    projectToolBar = addToolBar("项目");
+//    projectToolBar->addAction(newProjectAction);
+//    projectToolBar->addAction(newFileAction);
+//    projectToolBar->addAction(openProjectAction);
+//    projectToolBar->addAction(saveProjectAction);
+//    projectToolBar->addAction(saveAsProjectAction);
+//    projectToolBar->addAction(renameProjectAction);
+//    projectToolBar->addAction(deleteProjectAction);
+//    fileToolBar = addToolBar("文件");
+//    fileToolBar->addAction(openFileAction);
+//    fileToolBar->addAction(saveFileAction);
+//    fileToolBar->addAction(saveAsFileAction);
+//    fileToolBar->addAction(renameFileAction);
+//    fileToolBar->addAction(deleteFileAction);
+//    fileToolBar->addAction(addFileToProjectAction);
+//    fileToolBar->addAction(removeFileFromProjectAction);
+//    fileToolBar->addAction(viewProjectFilesAction);
+//    fileToolBar->addAction(sortFilesAction);
+//    fileToolBar->addAction(refreshProjectTreeAction);
+//    fileToolBar->addAction(updateProjectTreeAction);
 
     // 初始化状态栏
     statusBar()->showMessage("欢迎使用 Qt Creator！");
