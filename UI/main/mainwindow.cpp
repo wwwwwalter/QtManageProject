@@ -20,8 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
-    QTabWidget *tabWidget = new QTabWidget;
-    setCentralWidget(tabWidget);
+
 
 
 
@@ -54,26 +53,24 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-    fileSystemTreeView = new QTreeView;
+
     fileSystemModel = new QFileSystemModel;
     fileSystemModel->setRootPath(QDir::homePath());
 
-    fileSystemTreeView->setModel(fileSystemModel);
-    fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemDir.path()));
-    fileSystemTreeView->setColumnWidth(0, 200);
+    ui->fileSystemTreeView->setModel(fileSystemModel);
+    ui->fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemDir.path()));
+    ui->fileSystemTreeView->setColumnWidth(0, 200);
 
-    tabWidget->addTab(fileSystemTreeView,tr("File System"));
 
 
 
 
 
     // init project view
-    projectTreeView = new QTreeView;
+
     projectModel = new QStandardItemModel;
-    projectTreeView->setModel(projectModel);
-    tabWidget->addTab(projectTreeView,tr("Projects"));
-    tabWidget->setCurrentWidget(projectTreeView);
+    ui->projectTreeView->setModel(projectModel);
+
 
 
 
