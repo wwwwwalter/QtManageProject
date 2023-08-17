@@ -44,6 +44,10 @@ private:
     QItemSelectionModel *itemSelectionModel;
 
 
+signals:
+    void projectCreateComplete(QDir projectDir);
+
+
 
 
 };

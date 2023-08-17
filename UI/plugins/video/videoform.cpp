@@ -47,6 +47,11 @@ QDir VideoForm::doCreateProject()
 
     if(!projectDir.exists()){
         if(workDir.mkpath(projectDir.path())){
+            //project floders
+            projectDir.mkdir("tabs");
+            projectDir.mkdir("resources");
+
+            //project file
             if(projectFile.open(QIODevice::WriteOnly)){
                 QTextStream stream(&projectFile);
                 stream << "[XPlayer]\n";

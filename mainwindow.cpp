@@ -285,17 +285,40 @@ void MainWindow::setupUi()
     statusBar()->showMessage("欢迎使用 Qt Creator！");
 }
 
+void MainWindow::addProjectToProjectTree(QDir projectDir)
+{
+    QStandardItem *projectItem = new QStandardItem(projectDir.dirName());
+    projectModel->appendRow(projectItem);
+    getDirContents(projectDir,projectItem);
+
+}
+
+void MainWindow::getDirContents(QDir dir,QStandardItem *parentItem)
+{
+
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs|QDir::Files|QDir::NoDotAndDotDot,QDir::DirsFirst|QDir::Reversed);
+
+
+    foreach (const QFileInfo &fileInfo, fileInfoList) {
+        if(fileInfo.isDir()){
+            QStandardItem *dirItem = new QStandardItem(fileInfo.fileName());
+            parentItem->appendRow(dirItem);
+            QDir dir(fileInfo.filePath());
+            getDirContents(dir,dirItem);
+        }
+        else{
+            QStandardItem *fileItem = new QStandardItem(fileInfo.fileName());
+            parentItem->appendRow(fileItem);
+        }
+    }
+}
+
 void MainWindow::slotNewProject()
 {
 
     NewProjectDialog *newProjectDialog = new NewProjectDialog(this);
-    connect(newProjectDialog,&NewProjectDialog::accepted,this,[=]{
-        QDir projectDir  = newProjectDialog->getProjectDir();
-        if(!projectDir.path().isEmpty()){
-            setCurrentProjectDir(projectDir);
-        }
-    });
-    connect(newProjectDialog,&NewProjectDialog::rejected,this,[=]{
+    connect(newProjectDialog,&NewProjectDialog::projectCreateComplete,this,[=](QDir newProjectDir){
+        addProjectToProjectTree(newProjectDir);
     });
 
     newProjectDialog->exec();
@@ -316,12 +339,11 @@ void MainWindow::slotNewFile()
 void MainWindow::slotRefreshProjectTree()
 {
 
+
 }
 
 void MainWindow::setCurrentProjectDir(QDir projectDir)
 {
-    currentProjectDir = projectDir;
-    qDebug()<<currentProjectDir;
-    slotRefreshProjectTree();
+
 }
 

@@ -62,7 +62,10 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
         //QWidget to AbstractPlug class
         //call virtural function
         projectDir =  static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject();
-        this->accept();
+        if(projectDir!=QDir(".")){
+            emit projectCreateComplete(projectDir);
+            this->accept();
+        }
     });
 
 

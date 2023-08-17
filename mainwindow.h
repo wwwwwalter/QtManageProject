@@ -41,6 +41,9 @@ private:
     void sortFiles();
     void refreshProjectTree();
     void updateProjectTree();
+    void addProjectToProjectTree(QDir projectDir);
+    void getDirContents(QDir dir,QStandardItem *parentItem);
+
 
 private slots:
     void slotNewProject();
