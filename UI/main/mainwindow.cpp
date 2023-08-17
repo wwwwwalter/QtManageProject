@@ -127,10 +127,13 @@ void MainWindow::slotNewProject()
 
 void MainWindow::slotOpenProject()
 {
-    QFile projectFile = QFileDialog::getOpenFileName(this,tr("Open Project"),QDir::homePath()+"/xplayerproject",tr("xplayer (*.xplayer)"));
-    QFileInfo projectFileInfo(projectFile);
-    QDir projectDir(projectFileInfo.path());
-    addProjectToProjectTree(projectDir);
+    QString openFileName = QFileDialog::getOpenFileName(this,tr("Open Project"),QDir::homePath()+"/xplayerproject",tr("xplayer (*.xplayer)"));
+    if(!openFileName.isEmpty()){
+        QFileInfo projectFileInfo(openFileName);
+        QDir projectDir(projectFileInfo.path());
+        addProjectToProjectTree(projectDir);
+    }
+
 }
 
 void MainWindow::slotCloseProject()
