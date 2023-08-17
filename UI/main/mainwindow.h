@@ -46,14 +46,13 @@ private:
     void sortFiles();
     void refreshProjectTree();
     void updateProjectTree();
-    void addProjectToProjectTree(QDir projectDir);
-    void getDirContents(QDir dir,QStandardItem *parentItem);
+
 
 
 private slots:
-    void slotNewProject();
-    void slotNewFile();
-    void slotOpenProject();
+    //    void slotNewProject();
+    //    void slotNewFile();
+    //    void slotOpenProject();
     //    void slotSaveProject();
     //    void slotSaveAsProject();
     //    void slotRenameProject();
@@ -67,18 +66,35 @@ private slots:
     //    void slotRemoveFileFromProject();
     //    void slotViewProjectFiles();
     //    void slotSortFiles();
-    void slotRefreshProjectTree();
+    //    void slotRefreshProjectTree();
     //    void slotUpdateProjectTree();
 
 private:
-    QTreeView *fileSystemTreeView;
+    //fileSystemModel
+    QDir fileSystemRootDir;
     QFileSystemModel *fileSystemModel;
-    QFileSystemWatcher *fileSystemWatcher;
-    QDir fileSystemDir;
 
-    QTreeView *projectTreeView;
+
+
+    //projectModel
     QStandardItemModel *projectModel;
-    QDir projectDir;
+    QDir currentProjectDir;
+
+
+    //第一等级函数
+private slots:
+    void slotNewProject();
+    //void slotCloseProject();
+
+
+    //第二等级函数
+private:
+    void addProjectToProjectTree(QDir projectDir);
+    void getDirContents(QDir dir,QStandardItem *parentItem);
+
+
+
+private:
 
 
     QTreeView *fileTreeView;
@@ -114,8 +130,8 @@ private:
     QString currentFileName;
     bool isProjectOpen;
 
-    QDir currentProjectDir;
-    void setCurrentProjectDir(QDir projectDir);
+
+
 private:
     Ui::MainWindow *ui;
 };

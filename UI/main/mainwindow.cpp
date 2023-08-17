@@ -23,53 +23,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // init File system view
-    fileSystemDir = QDir::homePath();
-
-
-
-
+    // init File system model
+    fileSystemRootDir = QDir::homePath();
     fileSystemModel = new QFileSystemModel;
-    fileSystemModel->setRootPath(QDir::homePath());
-
+    fileSystemModel->setRootPath(fileSystemRootDir.path());
     ui->fileSystemTreeView->setModel(fileSystemModel);
-    ui->fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemDir.path()));
+    ui->fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemRootDir.path()));
     ui->fileSystemTreeView->setColumnWidth(0, 200);
 
 
-
-
-
-
-    // init project view
-
+    // init project model
     projectModel = new QStandardItemModel;
     ui->projectTreeView->setModel(projectModel);
+    ui->projectTreeView->header()->hide();
 
 
 
@@ -283,7 +249,7 @@ void MainWindow::setupUi()
 
 void MainWindow::addProjectToProjectTree(QDir projectDir)
 {
-    QStandardItem *projectItem = new QStandardItem(projectDir.dirName());
+    QStandardItem *projectItem = new QStandardItem(QIcon(":/images/folder_open.svg"),projectDir.dirName());
     projectModel->appendRow(projectItem);
     getDirContents(projectDir,projectItem);
 
@@ -297,13 +263,14 @@ void MainWindow::getDirContents(QDir dir,QStandardItem *parentItem)
 
     foreach (const QFileInfo &fileInfo, fileInfoList) {
         if(fileInfo.isDir()){
-            QStandardItem *dirItem = new QStandardItem(fileInfo.fileName());
+            //QStandardItem *dirItem = new QStandardItem(QIcon(this->style()->standardIcon(QStyle::SP_DirIcon)),fileInfo.fileName());
+            QStandardItem *dirItem = new QStandardItem(QIcon(":/images/folder_open.svg"),fileInfo.fileName());
             parentItem->appendRow(dirItem);
             QDir dir(fileInfo.filePath());
             getDirContents(dir,dirItem);
         }
         else{
-            QStandardItem *fileItem = new QStandardItem(fileInfo.fileName());
+            QStandardItem *fileItem = new QStandardItem(QIcon(this->style()->standardIcon(QStyle::SP_FileIcon)),fileInfo.fileName());
             parentItem->appendRow(fileItem);
         }
     }
@@ -320,28 +287,14 @@ void MainWindow::slotNewProject()
     newProjectDialog->exec();
     newProjectDialog->deleteLater();
 
-}
 
-void MainWindow::slotOpenProject()
-{
-
-}
-
-void MainWindow::slotNewFile()
-{
-
-}
-
-void MainWindow::slotRefreshProjectTree()
-{
 
 
 }
 
-void MainWindow::setCurrentProjectDir(QDir projectDir)
-{
 
-}
+
+
 
 
 
