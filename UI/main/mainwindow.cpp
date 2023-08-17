@@ -163,7 +163,7 @@ void MainWindow::slotNewFile()
     }
 
     QDir projectDir(projectIndex.data(Qt::UserRole+2).toString());
-    QFile projectFile = projectDir.path() + QDir::separator()+"/spaces/video.space";
+    QFile projectFile = projectDir.path() + QDir::separator()+"spaces/video.space";
     qDebug()<<projectFile.fileName();
 
     if(projectFile.open(QIODevice::NewOnly)){
