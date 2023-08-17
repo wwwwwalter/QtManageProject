@@ -15,7 +15,7 @@ FileForm::FileForm(QWidget *parent) :
     setPluginName(tr("FileForm"));
 
     //for right widget
-    workDir = QDir::homePath();
+    workDir = QDir::homePath()+QDir::separator()+"xplayerproject";
     ui->workDir->setText(workDir.path());
     templeteList<<tr("tab")<<tr("file");
     ui->comboBox->addItems(templeteList);
@@ -44,10 +44,10 @@ QDir FileForm::doCreateProject()
     projectName = ui->projectName->text();
     workDir = ui->workDir->text();
 
-
     if(projectName.isEmpty()||workDir.path().isEmpty()){
         ui->tips->clear();
         ui->tips->setText(tr("Tips: INVALID PARAMETER VALUE"));
+        return QDir();
     }
 
     QDir projectDir = workDir.path()+QDir::separator()+projectName;
@@ -56,7 +56,7 @@ QDir FileForm::doCreateProject()
     if(!projectDir.exists()){
         if(workDir.mkpath(projectDir.path())){
             //project floders
-            projectDir.mkdir("tabs");
+            projectDir.mkdir("spaces");
             projectDir.mkdir("resources");
 
             //project file
@@ -77,6 +77,8 @@ QDir FileForm::doCreateProject()
     else{
         ui->tips->clear();
         ui->tips->setText(tr("Tips: %1 is already exists!").arg(projectDir.path()));
+        return QDir();
     }
     return QDir();
+
 }

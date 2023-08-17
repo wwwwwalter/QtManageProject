@@ -27,28 +27,6 @@ public:
 
 
 
-private:
-    void newProject();
-    void newFile();
-    void openProject();
-    void saveProject();
-    void saveAsProject();
-    void renameProject();
-    void deleteProject();
-    void openFile();
-    void saveFile();
-    void saveAsFile();
-    void renameFile();
-    void deleteFile();
-    void addFileToProject();
-    void removeFileFromProject();
-    void viewProjectFiles();
-    void sortFiles();
-    void refreshProjectTree();
-    void updateProjectTree();
-
-
-
 private slots:
     //    void slotNewProject();
     //    void slotNewFile();
@@ -78,19 +56,29 @@ private:
 
     //projectModel
     QStandardItemModel *projectModel;
-    QDir currentProjectDir;
+    QModelIndex activeProjectModelIndex;
+    QModelIndex selectedItemModelIndex;
 
 
     //第一等级函数
 private slots:
     void slotNewProject();
+    void slotOpenProject();
     void slotCloseProject();
+    void slotActiveProject();
+    void slotNewFile();
+
 
 
     //第二等级函数
 private:
     void addProjectToProjectTree(QDir projectDir);
     void getDirContents(QDir dir,QStandardItem *parentItem);
+
+
+private:
+    //Icon
+    QIcon folderIcon;
 
 
 
@@ -108,11 +96,15 @@ private:
     QMenu *projectMenu;
     QAction *newProjectAction;
     QAction *newFileAction;
-    QAction *openProjectAction;
+
     QAction *saveProjectAction;
     QAction *saveAsProjectAction;
     QAction *renameProjectAction;
     QAction *deleteProjectAction;
+    QAction *closeProjectAction;
+    QAction *activeProjectAction;
+    QAction *openProjectAction;
+
     QAction *openFileAction;
     QAction *saveFileAction;
     QAction *saveAsFileAction;

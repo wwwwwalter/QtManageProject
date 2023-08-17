@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>qss/listview.qss</file>
         <file>images/folder_open.svg</file>
+        <file>images/folder_close.svg</file>
     </qresource>
 </RCC>

@@ -14,11 +14,14 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    //UI
     ui->setupUi(this);
     setupUi();
     //setGeometry(1300,100,400,800);
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
+    folderIcon.addPixmap(QPixmap(":/images/folder_open.svg"),QIcon::Normal,QIcon::On);
+    folderIcon.addPixmap(QPixmap(":/images/folder_close.svg"),QIcon::Normal,QIcon::Off);
 
 
 
@@ -38,133 +41,211 @@ MainWindow::MainWindow(QWidget *parent)
     ui->projectTreeView->header()->hide();
     ui->projectTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->projectTreeView,&QTreeView::customContextMenuRequested,this,[=](const QPoint &pos){
-        qDebug()<<pos;
+        selectedItemModelIndex = ui->projectTreeView->indexAt(pos);
+
         QMenu projectTreeViewMenu(ui->projectTreeView);
+        projectTreeViewMenu.addAction(activeProjectAction);
         projectTreeViewMenu.addAction(openFileAction);
+        projectTreeViewMenu.addAction(newFileAction);
         projectTreeViewMenu.addAction(deleteFileAction);
+        projectTreeViewMenu.addAction(closeProjectAction);
         projectTreeViewMenu.exec(QCursor::pos());
+    });
+
+    connect(ui->projectTreeView,&QTreeView::clicked,this,[=](const QModelIndex &index){
+        selectedItemModelIndex = index;
+    });
+
+    connect(ui->projectTreeView,&QTreeView::doubleClicked,this,[=](const QModelIndex &index){
+        selectedItemModelIndex = index;
+
+        qDebug()<<index.data(Qt::UserRole+1);
+        if(index.data(Qt::UserRole+1)==QString("file")){
+
+        }
     });
 
 
 
+}
 
 
 
+void MainWindow::addProjectToProjectTree(QDir projectDir)
+{
+    QStandardItem *projectItem = new QStandardItem(folderIcon,projectDir.dirName());
+    projectItem->setData(QString("projectfolder"),Qt::UserRole+1);
+    projectModel->appendRow(projectItem);
+    getDirContents(projectDir,projectItem);
+    ui->projectTreeView->setExpanded(projectModel->indexFromItem(projectItem),true);
+
+    ui->projectTreeView->setCurrentIndex(projectModel->indexFromItem(projectItem));
+    selectedItemModelIndex = ui->projectTreeView->currentIndex();
+
+    slotActiveProject();
+}
+
+void MainWindow::getDirContents(QDir dir,QStandardItem *parentItem)
+{
+
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs|QDir::Files|QDir::NoDotAndDotDot,QDir::DirsFirst|QDir::Reversed);
 
 
+    foreach (const QFileInfo &fileInfo, fileInfoList) {
+        if(fileInfo.isDir()){
+            //QStandardItem *dirItem = new QStandardItem(QIcon(this->style()->standardIcon(QStyle::SP_DirIcon)),fileInfo.fileName());
+            QStandardItem *dirItem = new QStandardItem(folderIcon,fileInfo.fileName());
+            dirItem->setData(QString("folder"),Qt::UserRole+1);
+            parentItem->appendRow(dirItem);
+            QDir dir(fileInfo.filePath());
+            getDirContents(dir,dirItem);
+        }
+        else{
+            QStandardItem *fileItem = new QStandardItem(QIcon(this->style()->standardIcon(QStyle::SP_FileIcon)),fileInfo.fileName());
+            fileItem->setData(QString("file"),Qt::UserRole+1);
+            parentItem->appendRow(fileItem);
+        }
+    }
+}
 
-    //create project
+void MainWindow::slotNewProject()
+{
 
+    NewProjectDialog *newProjectDialog = new NewProjectDialog(this);
+    connect(newProjectDialog,&NewProjectDialog::projectCreateComplete,this,[=](QDir newProjectDir){
+        addProjectToProjectTree(newProjectDir);
+    });
 
-
-
-
-
-
-
-
-
-
-
-
-
-    //projectTreeView->setHorizontalHeaderLabels(QStringList() << "文件夹" << "文件名");
-    //projectTreeView->setColumnWidth(0, 200);
-    //projectTreeView->setColumnWidth(1, 200);
-    //setCentralWidget(projectTreeView);
-
-    // 初始化文件树视图
-    //fileTreeView = new QTreeView(this);
-    //fileTreeView->setModel(fileSystemModel);
-    //fileTreeView->setRootIndex(fileSystemModel->index(QDir::homePath()));
-    //fileTreeView->setHorizontalHeaderLabels(QStringList() << "文件夹" << "文件名");
-    //fileTreeView->setColumnWidth(0, 200);
-    //fileTreeView->setColumnWidth(1, 200);
-    //setCentralWidget(fileTreeView);
-
-
-
-
-
-//    connect(fileTreeView, &QTreeView::clicked, this, &MainWindow::slotOpenFile);
-//    connect(fileTreeView, &QTreeView::doubleClicked, this, &MainWindow::slotOpenFile);
-
-
+    newProjectDialog->exec();
+    newProjectDialog->deleteLater();
 
 
 
 
 }
 
+void MainWindow::slotOpenProject()
+{
+    QFile projectFile = QFileDialog::getOpenFileName(this,tr("Open Project"),QDir::homePath()+"/xplayerproject",tr("xplayer (*.xplayer)"));
+    QFileInfo projectFileInfo(projectFile);
+    QDir projectDir(projectFileInfo.path());
+    addProjectToProjectTree(projectDir);
+}
+
+void MainWindow::slotCloseProject()
+{
+    if(selectedItemModelIndex.data(Qt::UserRole+1)==QString("projectfolder")){
+        projectModel->removeRow(selectedItemModelIndex.row());
+
+    }
+}
+
+void MainWindow::slotActiveProject()
+{
+    if(selectedItemModelIndex.data(Qt::UserRole+1)==QString("projectfolder")){
+        activeProjectModelIndex = selectedItemModelIndex;
+        QStandardItem *activeProjectItem = projectModel->itemFromIndex(activeProjectModelIndex);
+
+        QFont font;
+        font.setWeight(QFont::Bold);
+        activeProjectItem->setFont(font);
+
+    }
+}
+
+void MainWindow::slotNewFile()
+{
+
+}
+
+
+
+
+
+
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
 void MainWindow::setupUi()
 {
     // 创建新项目的 QAction
-    newProjectAction = new QAction("新建项目", this);
+    newProjectAction = new QAction(tr("New Project"), this);
     newProjectAction->setShortcut(QKeySequence("Ctrl+N"));
 
 
     // 创建新文件的 QAction
-    newFileAction = new QAction("新建文件", this);
+    newFileAction = new QAction(tr("New File"), this);
     newFileAction->setShortcut(QKeySequence("Ctrl+Shift+N"));
 
 
-    // 创建打开项目的 QAction
-    openProjectAction = new QAction("打开项目", this);
-    openProjectAction->setShortcut(QKeySequence("Ctrl+O"));
-
-
     // 创建保存项目的 QAction
-    saveProjectAction = new QAction("保存项目", this);
+    saveProjectAction = new QAction(tr("Save Project"), this);
     saveProjectAction->setShortcut(QKeySequence("Ctrl+S"));
 
 
     // 创建保存项目为新文件的 QAction
-    saveAsProjectAction = new QAction("保存为新项目", this);
+    saveAsProjectAction = new QAction(tr("Save Project As..."), this);
     saveAsProjectAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 
 
     // 创建重命名项目的 QAction
-    renameProjectAction = new QAction("重命名项目", this);
+    renameProjectAction = new QAction(tr("Rename Project"), this);
     renameProjectAction->setShortcut(QKeySequence("Ctrl+R"));
 
 
     // 创建删除项目的 QAction
-    deleteProjectAction = new QAction("删除项目", this);
+    deleteProjectAction = new QAction(tr("Delete Project"), this);
     deleteProjectAction->setShortcut(QKeySequence("Ctrl+D"));
+
+    // close project QAction
+    closeProjectAction = new QAction(tr("Close Project"),this);
+    closeProjectAction->setShortcut(QKeySequence("Ctrl+C"));
+
+    // active project QAction
+    activeProjectAction = new QAction(tr("Active Project"),this);
+
+    // open project QAction
+    openProjectAction = new QAction(tr("Open Project"), this);
+    openProjectAction->setShortcut(QKeySequence("Ctrl+O"));
+
 
 
     // 创建打开文件的 QAction
-    openFileAction = new QAction("打开文件", this);
+    openFileAction = new QAction(tr("Open File"), this);
     openFileAction->setShortcut(QKeySequence("Ctrl+O"));
 
 
     // 创建保存文件的 QAction
-    saveFileAction = new QAction("保存文件", this);
+    saveFileAction = new QAction(tr("Save File"), this);
     saveFileAction->setShortcut(QKeySequence("Ctrl+S"));
 
 
     // 创建保存文件为新文件的 QAction
-    saveAsFileAction = new QAction("保存为新文件", this);
+    saveAsFileAction = new QAction(tr("Save File As..."), this);
     saveAsFileAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 
 
     // 创建重命名文件的 QAction
-    renameFileAction = new QAction("重命名文件", this);
+    renameFileAction = new QAction(tr("Rename File"), this);
     renameFileAction->setShortcut(QKeySequence("Ctrl+R"));
 
 
     // 创建删除文件的 QAction
-    deleteFileAction = new QAction("删除文件", this);
+    deleteFileAction = new QAction(tr("Delete File"), this);
     deleteFileAction->setShortcut(QKeySequence("Ctrl+D"));
 
 
     // 创建添加文件到项目的 QAction
-    addFileToProjectAction = new QAction("添加文件到项目", this);
+    addFileToProjectAction = new QAction(tr("Add Existing Files..."), this);
     addFileToProjectAction->setShortcut(QKeySequence("Ctrl+A"));
 
 
     // 创建从项目中移除文件的 QAction
-    removeFileFromProjectAction = new QAction("从项目中移除文件", this);
+    removeFileFromProjectAction = new QAction(tr("Remove File"), this);
     removeFileFromProjectAction->setShortcut(QKeySequence("Ctrl+R"));
 
 
@@ -189,7 +270,7 @@ void MainWindow::setupUi()
 
 
 
-    fileMenu = menuBar()->addMenu("文件");
+    fileMenu = menuBar()->addMenu(tr("File"));
     fileMenu->addAction(newFileAction);
     fileMenu->addAction(openFileAction);
     fileMenu->addAction(saveFileAction);
@@ -206,7 +287,7 @@ void MainWindow::setupUi()
     fileMenu->addSeparator();
     fileMenu->addAction(deleteFileAction);
 
-    projectMenu = menuBar()->addMenu("项目");
+    projectMenu = menuBar()->addMenu(tr("Project"));
     projectMenu->addAction(newProjectAction);
     projectMenu->addAction(openProjectAction);
     projectMenu->addAction(saveProjectAction);
@@ -215,13 +296,17 @@ void MainWindow::setupUi()
     projectMenu->addSeparator();
     projectMenu->addAction(deleteProjectAction);
 
+    connect(activeProjectAction,&QAction::triggered,this,&MainWindow::slotActiveProject);
     connect(newProjectAction, &QAction::triggered, this, &MainWindow::slotNewProject);
+    connect(openProjectAction, &QAction::triggered, this, &MainWindow::slotOpenProject);
+    connect(closeProjectAction,&QAction::triggered,this,&MainWindow::slotCloseProject);
 //    connect(newFileAction, &QAction::triggered, this, &MainWindow::slotNewFile);
-//    connect(openProjectAction, &QAction::triggered, this, &MainWindow::slotOpenProject);
+
 //    connect(saveProjectAction, &QAction::triggered, this, &MainWindow::slotSaveProject);
 //    connect(saveAsProjectAction, &QAction::triggered, this, &MainWindow::slotSaveAsProject);
 //    connect(renameProjectAction, &QAction::triggered, this, &MainWindow::slotRenameProject);
     connect(deleteProjectAction, &QAction::triggered, this, &MainWindow::slotCloseProject);
+
 //    connect(openFileAction, &QAction::triggered, this, &MainWindow::slotOpenFile);
 //    connect(saveFileAction, &QAction::triggered, this, &MainWindow::slotSaveFile);
 //    connect(saveAsFileAction, &QAction::triggered, this, &MainWindow::slotSaveAsFile);
@@ -258,66 +343,4 @@ void MainWindow::setupUi()
 
     // 初始化状态栏
     statusBar()->showMessage("欢迎使用 Qt Creator！");
-}
-
-void MainWindow::addProjectToProjectTree(QDir projectDir)
-{
-    QStandardItem *projectItem = new QStandardItem(QIcon(":/images/folder_open.svg"),projectDir.dirName());
-    projectModel->appendRow(projectItem);
-    getDirContents(projectDir,projectItem);
-
-}
-
-void MainWindow::getDirContents(QDir dir,QStandardItem *parentItem)
-{
-
-    QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs|QDir::Files|QDir::NoDotAndDotDot,QDir::DirsFirst|QDir::Reversed);
-
-
-    foreach (const QFileInfo &fileInfo, fileInfoList) {
-        if(fileInfo.isDir()){
-            //QStandardItem *dirItem = new QStandardItem(QIcon(this->style()->standardIcon(QStyle::SP_DirIcon)),fileInfo.fileName());
-            QStandardItem *dirItem = new QStandardItem(QIcon(":/images/folder_open.svg"),fileInfo.fileName());
-            parentItem->appendRow(dirItem);
-            QDir dir(fileInfo.filePath());
-            getDirContents(dir,dirItem);
-        }
-        else{
-            QStandardItem *fileItem = new QStandardItem(QIcon(this->style()->standardIcon(QStyle::SP_FileIcon)),fileInfo.fileName());
-            parentItem->appendRow(fileItem);
-        }
-    }
-}
-
-void MainWindow::slotNewProject()
-{
-
-    NewProjectDialog *newProjectDialog = new NewProjectDialog(this);
-    connect(newProjectDialog,&NewProjectDialog::projectCreateComplete,this,[=](QDir newProjectDir){
-        addProjectToProjectTree(newProjectDir);
-    });
-
-    newProjectDialog->exec();
-    newProjectDialog->deleteLater();
-
-
-
-
-}
-
-void MainWindow::slotCloseProject()
-{
-    QStandardItem *projectModelRootItem =  projectModel->invisibleRootItem();
-    projectModel->removeRow(0);
-}
-
-
-
-
-
-
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
