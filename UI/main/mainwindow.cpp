@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     setupUi();
-    setGeometry(1300,100,400,800);
+    //setGeometry(1300,100,400,800);
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
@@ -259,26 +259,26 @@ void MainWindow::setupUi()
 //    connect(deleteFileAction, &QAction::triggered, this, &MainWindow::slotDeleteFile);
 
     // 初始化工具栏
-//    projectToolBar = addToolBar("项目");
-//    projectToolBar->addAction(newProjectAction);
-//    projectToolBar->addAction(newFileAction);
-//    projectToolBar->addAction(openProjectAction);
-//    projectToolBar->addAction(saveProjectAction);
-//    projectToolBar->addAction(saveAsProjectAction);
-//    projectToolBar->addAction(renameProjectAction);
-//    projectToolBar->addAction(deleteProjectAction);
-//    fileToolBar = addToolBar("文件");
-//    fileToolBar->addAction(openFileAction);
-//    fileToolBar->addAction(saveFileAction);
-//    fileToolBar->addAction(saveAsFileAction);
-//    fileToolBar->addAction(renameFileAction);
-//    fileToolBar->addAction(deleteFileAction);
-//    fileToolBar->addAction(addFileToProjectAction);
-//    fileToolBar->addAction(removeFileFromProjectAction);
-//    fileToolBar->addAction(viewProjectFilesAction);
-//    fileToolBar->addAction(sortFilesAction);
-//    fileToolBar->addAction(refreshProjectTreeAction);
-//    fileToolBar->addAction(updateProjectTreeAction);
+    projectToolBar = addToolBar("项目");
+    projectToolBar->addAction(newProjectAction);
+    projectToolBar->addAction(newFileAction);
+    projectToolBar->addAction(openProjectAction);
+    projectToolBar->addAction(saveProjectAction);
+    projectToolBar->addAction(saveAsProjectAction);
+    projectToolBar->addAction(renameProjectAction);
+    projectToolBar->addAction(deleteProjectAction);
+    fileToolBar = addToolBar("文件");
+    fileToolBar->addAction(openFileAction);
+    fileToolBar->addAction(saveFileAction);
+    fileToolBar->addAction(saveAsFileAction);
+    fileToolBar->addAction(renameFileAction);
+    fileToolBar->addAction(deleteFileAction);
+    fileToolBar->addAction(addFileToProjectAction);
+    fileToolBar->addAction(removeFileFromProjectAction);
+    fileToolBar->addAction(viewProjectFilesAction);
+    fileToolBar->addAction(sortFilesAction);
+    fileToolBar->addAction(refreshProjectTreeAction);
+    fileToolBar->addAction(updateProjectTreeAction);
 
     // 初始化状态栏
     statusBar()->showMessage("欢迎使用 Qt Creator！");
