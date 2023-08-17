@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QMainWindow>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileSystemModel>
@@ -8,8 +9,11 @@
 #include <QMainWindow>
 #include <QToolBar>
 #include <QTreeView>
-#include "UI/newproject/newprojectdialog.h"
+#include <QStandardItem>
 
+namespace Ui {
+class MainWindow;
+}
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +22,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
     void setupUi();
 
 
@@ -49,21 +54,21 @@ private slots:
     void slotNewProject();
     void slotNewFile();
     void slotOpenProject();
-//    void slotSaveProject();
-//    void slotSaveAsProject();
-//    void slotRenameProject();
-//    void slotDeleteProject();
-//    void slotOpenFile();
-//    void slotSaveFile();
-//    void slotSaveAsFile();
-//    void slotRenameFile();
-//    void slotDeleteFile();
-//    void slotAddFileToProject();
-//    void slotRemoveFileFromProject();
-//    void slotViewProjectFiles();
-//    void slotSortFiles();
+    //    void slotSaveProject();
+    //    void slotSaveAsProject();
+    //    void slotRenameProject();
+    //    void slotDeleteProject();
+    //    void slotOpenFile();
+    //    void slotSaveFile();
+    //    void slotSaveAsFile();
+    //    void slotRenameFile();
+    //    void slotDeleteFile();
+    //    void slotAddFileToProject();
+    //    void slotRemoveFileFromProject();
+    //    void slotViewProjectFiles();
+    //    void slotSortFiles();
     void slotRefreshProjectTree();
-//    void slotUpdateProjectTree();
+    //    void slotUpdateProjectTree();
 
 private:
     QTreeView *fileSystemTreeView;
@@ -111,8 +116,8 @@ private:
 
     QDir currentProjectDir;
     void setCurrentProjectDir(QDir projectDir);
-
-
+private:
+    Ui::MainWindow *ui;
 };
 
-#endif
+#endif // MAINWINDOW_H

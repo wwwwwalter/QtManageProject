@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 #include <QMenu>
 #include <QMenuBar>
 #include <QStatusBar>
@@ -7,12 +8,14 @@
 #include <QTextStream>
 #include <QApplication>
 #include <QStyleFactory>
+#include <UI/newproject/newprojectdialog.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
-
-    this->setupUi();
+    ui->setupUi(this);
+    setupUi();
     setGeometry(1300,100,400,800);
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
@@ -115,10 +118,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-}
-
-MainWindow::~MainWindow()
-{
 }
 
 void MainWindow::setupUi()
@@ -347,3 +346,9 @@ void MainWindow::setCurrentProjectDir(QDir projectDir)
 
 }
 
+
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
