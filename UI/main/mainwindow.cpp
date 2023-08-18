@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QStyleFactory>
 #include <UI/newproject/newprojectdialog.h>
+#include <UI/newfile/newfiledialog.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -159,21 +160,31 @@ void MainWindow::slotActiveProject()
 
 void MainWindow::slotNewFile()
 {
-    //NewFileDialog
-    QModelIndex projectIndex = selectedItemModelIndex;
-    while(projectIndex.data(Qt::UserRole+1)!=QString("projectfolder")){
-        projectIndex = projectIndex.parent();
-    }
+//    //NewFileDialog
+//    QModelIndex projectIndex = selectedItemModelIndex;
+//    while(projectIndex.data(Qt::UserRole+1)!=QString("projectfolder")){
+//        projectIndex = projectIndex.parent();
+//    }
 
-    QDir projectDir(projectIndex.data(Qt::UserRole+2).toString());
-    QFile projectFile = projectDir.path() + QDir::separator()+"spaces/video.space";
-    qDebug()<<projectFile.fileName();
+//    QDir projectDir(projectIndex.data(Qt::UserRole+2).toString());
+//    QFile projectFile = projectDir.path() + QDir::separator()+"spaces/video.space";
+//    qDebug()<<projectFile.fileName();
 
-    if(projectFile.open(QIODevice::NewOnly)){
-        projectFile.close();
-    }
+//    if(projectFile.open(QIODevice::NewOnly)){
+//        projectFile.close();
+//    }
 
-    //add new to model
+//    //add new to model
+
+
+    NewFileDialog *newFileDialog = new NewFileDialog(this);
+
+
+
+    newFileDialog->exec();
+    newFileDialog->deleteLater();
+
+
 
 }
 

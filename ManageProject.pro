@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     UI/main/mainwindow.cpp \
+    UI/newfile/newfiledialog.cpp \
     UI/newproject/newprojectdialog.cpp \
     UI/plugins/abstract/abstrackplugin.cpp \
     UI/plugins/audio/audioform.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
 
 HEADERS += \
     UI/main/mainwindow.h \
+    UI/newfile/newfiledialog.h \
     UI/newproject/newprojectdialog.h \
     UI/plugins/abstract/abstrackplugin.h \
     UI/plugins/audio/audioform.h \
@@ -32,6 +34,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 FORMS += \
     UI/main/mainwindow.ui \
+    UI/newfile/newfiledialog.ui \
     UI/newproject/newprojectdialog.ui \
     UI/plugins/audio/audioform.ui \
     UI/plugins/file/fileform.ui \
