@@ -2,6 +2,9 @@
 #include "ui_fileform.h"
 
 #include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMessageBox>
 
 FileForm::FileForm(QWidget *parent) :
@@ -60,17 +63,27 @@ QDir FileForm::doCreateProject()
             projectDir.mkdir("resources");
 
             //project file
-            if(projectFile.open(QIODevice::WriteOnly)){
-                QTextStream stream(&projectFile);
-                stream << "[XPlayer]\n";
-                stream << "File\n";
-                stream << "[File]\n";
-                stream << "[Template]\n";
-                stream << ui->comboBox->currentText();
+            if(projectFile.open(QFile::WriteOnly)){
+                QJsonDocument jsonDoc;
+                QJsonObject rootJsonObject;
+                QJsonObject projectJsonObject;
+                QJsonArray spaceJsonArray;
+                QJsonArray resourcesJsonArray;
 
+                projectJsonObject.insert("name",QJsonValue(projectName));
+                projectJsonObject.insert("type",QJsonValue(getPluginName()));
+
+                rootJsonObject.insert("project",projectJsonObject);
+                rootJsonObject.insert("spaces",spaceJsonArray);
+                rootJsonObject.insert("resources",resourcesJsonArray);
+
+
+
+                jsonDoc.setObject(rootJsonObject);
+                projectFile.write(jsonDoc.toJson());
                 projectFile.close();
                 return projectDir;
-                //QMessageBox::information(this, "information", "create project complete");
+
             }
         }
     }
