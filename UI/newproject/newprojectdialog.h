@@ -45,7 +45,7 @@ private:
 
 
 signals:
-    void projectCreateComplete(QDir projectDir);
+    void projectCreateComplete(QFileInfo projectConfigFileInfo);
 
 
 

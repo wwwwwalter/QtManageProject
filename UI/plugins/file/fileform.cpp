@@ -42,7 +42,7 @@ FileForm::~FileForm()
 
 
 
-QDir FileForm::doCreateProject()
+QFileInfo FileForm::doCreateProject()
 {
     projectName = ui->projectName->text();
     workDir = ui->workDir->text();
@@ -50,17 +50,18 @@ QDir FileForm::doCreateProject()
     if(projectName.isEmpty()||workDir.path().isEmpty()){
         ui->tips->clear();
         ui->tips->setText(tr("Tips: INVALID PARAMETER VALUE"));
-        return QDir();
+        return QFileInfo();
     }
 
     QDir projectDir = workDir.path()+QDir::separator()+projectName;
-    QFile projectFile = projectDir.path()+QDir::separator()+projectName+".xplayer";
+    QFileInfo projectFileInfo(projectDir.path()+QDir::separator()+projectName+".xplayer");
+    QFile projectFile(projectFileInfo.absoluteFilePath());
 
     if(!projectDir.exists()){
         if(workDir.mkpath(projectDir.path())){
             //project floders
             projectDir.mkdir("spaces");
-            projectDir.mkdir("resources");
+            projectDir.mkdir("playlists");
 
             //project file
             if(projectFile.open(QFile::WriteOnly)){
@@ -71,18 +72,17 @@ QDir FileForm::doCreateProject()
                 QJsonArray resourcesJsonArray;
 
                 projectJsonObject.insert("name",QJsonValue(projectName));
-                projectJsonObject.insert("type",QJsonValue(getPluginName()));
 
                 rootJsonObject.insert("project",projectJsonObject);
                 rootJsonObject.insert("spaces",spaceJsonArray);
-                rootJsonObject.insert("resources",resourcesJsonArray);
+                rootJsonObject.insert("playlists",resourcesJsonArray);
 
 
 
                 jsonDoc.setObject(rootJsonObject);
                 projectFile.write(jsonDoc.toJson());
                 projectFile.close();
-                return projectDir;
+                return projectFileInfo;
 
             }
         }
@@ -90,8 +90,8 @@ QDir FileForm::doCreateProject()
     else{
         ui->tips->clear();
         ui->tips->setText(tr("Tips: %1 is already exists!").arg(projectDir.path()));
-        return QDir();
+        return QFileInfo();
     }
-    return QDir();
+    return QFileInfo();
 
 }

@@ -23,7 +23,7 @@ public:
     void setPluginName(const QString &newPluginName);
 
 public:
-    virtual QDir doCreateProject() = 0;
+    virtual QFileInfo doCreateProject() = 0;
 
 signals:
 

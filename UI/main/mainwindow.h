@@ -74,6 +74,9 @@ private slots:
 private:
     void addProjectToProjectTree(QDir projectDir);
     void getDirContents(QDir dir,QStandardItem *parentItem);
+    void parseProjectConfigFile(QFileInfo projectConfigFileInfo);
+
+
 
 
 private:

@@ -1,6 +1,9 @@
 #include "videoform.h"
 #include "ui_videoform.h"
 #include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMessageBox>
 
 VideoForm::VideoForm(QWidget *parent) :
@@ -31,7 +34,7 @@ VideoForm::~VideoForm()
 }
 
 
-QDir VideoForm::doCreateProject()
+QFileInfo VideoForm::doCreateProject()
 {
     projectName = ui->projectName->text();
     workDir = ui->workDir->text();
@@ -39,38 +42,48 @@ QDir VideoForm::doCreateProject()
     if(projectName.isEmpty()||workDir.path().isEmpty()){
         ui->tips->clear();
         ui->tips->setText(tr("Tips: INVALID PARAMETER VALUE"));
-        return QDir();
+        return QFileInfo();
     }
 
     QDir projectDir = workDir.path()+QDir::separator()+projectName;
-    QFile projectFile = projectDir.path()+QDir::separator()+projectName+".xplayer";
+    QFileInfo projectFileInfo(projectDir.path()+QDir::separator()+projectName+".xplayer");
+    QFile projectFile(projectFileInfo.absoluteFilePath());
 
     if(!projectDir.exists()){
         if(workDir.mkpath(projectDir.path())){
             //project floders
             projectDir.mkdir("spaces");
-            projectDir.mkdir("resources");
+            projectDir.mkdir("playlists");
 
             //project file
-            if(projectFile.open(QIODevice::WriteOnly)){
-                QTextStream stream(&projectFile);
-                stream << "[XPlayer]\n";
-                stream << "File\n";
-                stream << "[File]\n";
-                stream << "[Template]\n";
-                stream << ui->comboBox->currentText();
+            if(projectFile.open(QFile::WriteOnly)){
+                QJsonDocument jsonDoc;
+                QJsonObject rootJsonObject;
+                QJsonObject projectJsonObject;
+                QJsonArray spaceJsonArray;
+                QJsonArray resourcesJsonArray;
 
+                projectJsonObject.insert("name",QJsonValue(projectName));
+
+                rootJsonObject.insert("project",projectJsonObject);
+                rootJsonObject.insert("spaces",spaceJsonArray);
+                rootJsonObject.insert("playlists",resourcesJsonArray);
+
+
+
+                jsonDoc.setObject(rootJsonObject);
+                projectFile.write(jsonDoc.toJson());
                 projectFile.close();
-                return projectDir;
-                //QMessageBox::information(this, "information", "create project complete");
+                return projectFileInfo;
+
             }
         }
     }
     else{
         ui->tips->clear();
         ui->tips->setText(tr("Tips: %1 is already exists!").arg(projectDir.path()));
-        return QDir();
+        return QFileInfo();
     }
-    return QDir();
+    return QFileInfo();
 
 }

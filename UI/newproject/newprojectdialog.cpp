@@ -61,9 +61,10 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
     connect(ui->buttonBox,&QDialogButtonBox::accepted,this,[=]{
         //QWidget to AbstractPlug class
         //call virtural function
-        projectDir =  static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject();
-        if(projectDir!=QDir(".")){
-            emit projectCreateComplete(projectDir);
+        QFileInfo projectConfigFileInfo =  static_cast<AbstrackPlugin*>(ui->stackedWidget->currentWidget())->doCreateProject();
+
+        if(!projectConfigFileInfo.fileName().isEmpty()){
+            emit projectCreateComplete(projectConfigFileInfo);
             this->accept();
         }
     });

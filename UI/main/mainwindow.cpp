@@ -10,6 +10,10 @@
 #include <QStyleFactory>
 #include <UI/newproject/newprojectdialog.h>
 #include <UI/newfile/newfiledialog.h>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -44,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->projectTreeView,&QTreeView::customContextMenuRequested,this,[=](const QPoint &pos){
         selectedItemModelIndex = ui->projectTreeView->indexAt(pos);
 
+
         QMenu projectTreeViewMenu(ui->projectTreeView);
         projectTreeViewMenu.addAction(activeProjectAction);
         projectTreeViewMenu.addAction(openFileAction);
@@ -60,14 +65,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->projectTreeView,&QTreeView::doubleClicked,this,[=](const QModelIndex &index){
         selectedItemModelIndex = index;
 
-        qDebug()<<index.data(Qt::UserRole+1);
+        qDebug()<<index.data(Qt::UserRole+1)<<index.data(Qt::UserRole+2);
         if(index.data(Qt::UserRole+1)==QString("file")){
 
         }
     });
-
-
-
 }
 
 
@@ -110,12 +112,104 @@ void MainWindow::getDirContents(QDir dir,QStandardItem *parentItem)
     }
 }
 
+//real physical path
+void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
+{
+    QFile projectConfigFile(projectConfigFileInfo.filePath());
+
+
+    if(projectConfigFile.open(QFile::ReadOnly)){
+        QByteArray jsonData = projectConfigFile.readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+        QJsonObject rootJsonObject = jsonDoc.object();
+        QJsonObject projectJsonObject = rootJsonObject.value("project").toObject();
+        QString projectName = projectJsonObject.value("name").toString();
+
+
+        QJsonArray spacesJsonArray = rootJsonObject.value("spaces").toArray();
+        QJsonArray playlistsJsonArray = rootJsonObject.value("playlists").toArray();
+
+
+
+
+        QList<QStandardItem*> sameNameProjectItemList = projectModel->findItems(projectName);
+        foreach (QStandardItem* projectItem, sameNameProjectItemList) {
+            if(projectItem->data(Qt::UserRole+2).toString()==projectConfigFileInfo.filePath()){
+                qDebug()<<"is opened, just refresh";
+
+                projectModel->removeRow(projectItem->row());
+                parseProjectConfigFile(projectConfigFileInfo);
+                return;
+            }
+        }
+
+
+        //add to model
+        QStandardItem *projectFolderItem = new QStandardItem(folderIcon,projectName);
+        projectFolderItem->setData(QString("projectFolder"),Qt::UserRole+1);
+        projectFolderItem->setData(projectConfigFileInfo.filePath(),Qt::UserRole+2);
+        projectModel->appendRow(projectFolderItem);
+
+
+
+
+        QStandardItem *configFileItem = new QStandardItem(projectConfigFileInfo.fileName());
+        configFileItem->setData("xplayer",Qt::UserRole+1);
+        configFileItem->setData(projectConfigFileInfo.filePath(),Qt::UserRole+2);
+
+
+
+        QStandardItem *spacesFolderItem = new QStandardItem(folderIcon,"spaces");
+        spacesFolderItem->setData(QString("spacesFolder"),Qt::UserRole+1);
+        foreach (QJsonValue value, spacesJsonArray) {
+            QFileInfo spaceFileInfo(value.toString());
+            QStandardItem *spaceItem = new QStandardItem(spaceFileInfo.fileName());
+            spaceItem->setData("spaceFile",Qt::UserRole+1);
+            spaceItem->setData(spaceFileInfo.filePath(),Qt::UserRole+2);
+            spacesFolderItem->appendRow(spaceItem);
+        }
+
+
+
+        QStandardItem *playlistsFolderItem = new QStandardItem(folderIcon,"playists");
+        playlistsFolderItem->setData(QString("playListsFolder"),Qt::UserRole+1);
+
+        foreach (QJsonValue value, playlistsJsonArray) {
+            QFileInfo playListFileInfo(value.toString());
+            QStandardItem *playListItem = new QStandardItem(playListFileInfo.fileName());
+            playListItem->setData("playListFile",Qt::UserRole+1);
+            playListItem->setData(playListFileInfo.filePath(),Qt::UserRole+2);
+            playlistsFolderItem->appendRow(playListItem);
+        }
+
+
+        projectFolderItem->appendRow(spacesFolderItem);
+        projectFolderItem->appendRow(playlistsFolderItem);
+        projectFolderItem->appendRow(configFileItem);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        projectConfigFile.close();
+    }
+}
+
 void MainWindow::slotNewProject()
 {
 
     NewProjectDialog *newProjectDialog = new NewProjectDialog(this);
-    connect(newProjectDialog,&NewProjectDialog::projectCreateComplete,this,[=](QDir newProjectDir){
-        addProjectToProjectTree(newProjectDir);
+    connect(newProjectDialog,&NewProjectDialog::projectCreateComplete,this,[=](QFileInfo projectConfigFileInfo){
+        parseProjectConfigFile(projectConfigFileInfo);
     });
 
     newProjectDialog->exec();
@@ -128,11 +222,11 @@ void MainWindow::slotNewProject()
 
 void MainWindow::slotOpenProject()
 {
-    QString openFileName = QFileDialog::getOpenFileName(this,tr("Open Project"),QDir::homePath()+"/xplayerproject",tr("xplayer (*.xplayer)"));
-    if(!openFileName.isEmpty()){
-        QFileInfo projectFileInfo(openFileName);
-        QDir projectDir(projectFileInfo.path());
-        addProjectToProjectTree(projectDir);
+    QString projectConfigFilePath = QFileDialog::getOpenFileName(this,tr("Open Project"),QDir::homePath()+"/xplayerproject",tr("xplayer (*.xplayer)"));
+    QFileInfo projectConfigFileInfo(projectConfigFilePath);
+    if(!projectConfigFilePath.isEmpty()){
+        //addProjectToProjectTree(projectDir);
+        parseProjectConfigFile(projectConfigFileInfo);
     }
 
 }
@@ -160,24 +254,63 @@ void MainWindow::slotActiveProject()
 
 void MainWindow::slotNewFile()
 {
-//    //NewFileDialog
-//    QModelIndex projectIndex = selectedItemModelIndex;
-//    while(projectIndex.data(Qt::UserRole+1)!=QString("projectfolder")){
-//        projectIndex = projectIndex.parent();
-//    }
-
-//    QDir projectDir(projectIndex.data(Qt::UserRole+2).toString());
-//    QFile projectFile = projectDir.path() + QDir::separator()+"spaces/video.space";
-//    qDebug()<<projectFile.fileName();
-
-//    if(projectFile.open(QIODevice::NewOnly)){
-//        projectFile.close();
-//    }
-
-//    //add new to model
 
 
     NewFileDialog *newFileDialog = new NewFileDialog(this);
+
+
+    connect(newFileDialog,&NewFileDialog::fileCreateComplete,this,[=](QFileInfo newFileInfo){
+        qDebug()<<newFileInfo;
+        //insert to xplayer json
+
+        QModelIndex projectIndex = selectedItemModelIndex;
+        while(projectIndex.data(Qt::UserRole+1)!=QString("projectFolder")){
+            projectIndex = projectIndex.parent();
+        }
+
+        QFileInfo projectConfigFileInfo(projectIndex.data(Qt::UserRole+2).toString());
+        QFile projectConfigFile(projectConfigFileInfo.filePath());
+
+        if(projectConfigFile.open(QFile::ReadWrite)){
+            QByteArray jsonData = projectConfigFile.readAll();
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+            QJsonObject rootJsonObject = jsonDoc.object();
+
+
+
+            if(projectConfigFileInfo.suffix()=="space"){
+                QJsonValueRef refSpaces = rootJsonObject.find("spaces").value();
+                QJsonArray array =  refSpaces.toArray();
+                array.append(QJsonValue(projectConfigFileInfo.fileName()));
+
+
+//                QJsonArray spacesJsonArray = rootJsonObject.value("spaces").toArray();
+//                spacesJsonArray.append(QJsonValue(projectConfigFileInfo.fileName()));
+
+            }
+            else if(projectConfigFileInfo.suffix()=="playlist"){
+                QJsonArray playlistsJsonArray = rootJsonObject.value("playlists").toArray();
+                playlistsJsonArray.append(QJsonValue(projectConfigFileInfo.fileName()));
+                rootJsonObject["playlists"]=playlistsJsonArray;
+            }
+
+            jsonDoc.setObject(rootJsonObject);
+            projectConfigFile.write(jsonDoc.toJson());
+
+            qDebug()<<jsonDoc;
+
+
+
+            projectConfigFile.close();
+        }
+
+        parseProjectConfigFile(projectConfigFileInfo);
+
+
+
+
+
+    });
 
 
 
