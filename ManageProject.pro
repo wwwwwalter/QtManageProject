@@ -16,6 +16,12 @@ SOURCES += \
     UI/plugins/audio/audioform.cpp \
     UI/plugins/file/fileform.cpp \
     UI/plugins/video/videoform.cpp \
+    UI/spacetab/audiospace.cpp \
+    UI/spacetab/emptyspace.cpp \
+    UI/spacetab/form.cpp \
+    UI/spacetab/spacetabwidget.cpp \
+    UI/spacetab/textfile.cpp \
+    UI/spacetab/videospace.cpp \
     main.cpp
 
 HEADERS += \
@@ -25,7 +31,13 @@ HEADERS += \
     UI/plugins/abstract/abstrackplugin.h \
     UI/plugins/audio/audioform.h \
     UI/plugins/file/fileform.h \
-    UI/plugins/video/videoform.h
+    UI/plugins/video/videoform.h \
+    UI/spacetab/audiospace.h \
+    UI/spacetab/emptyspace.h \
+    UI/spacetab/form.h \
+    UI/spacetab/spacetabwidget.h \
+    UI/spacetab/textfile.h \
+    UI/spacetab/videospace.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -38,7 +50,12 @@ FORMS += \
     UI/newproject/newprojectdialog.ui \
     UI/plugins/audio/audioform.ui \
     UI/plugins/file/fileform.ui \
-    UI/plugins/video/videoform.ui
+    UI/plugins/video/videoform.ui \
+    UI/spacetab/audiospace.ui \
+    UI/spacetab/emptyspace.ui \
+    UI/spacetab/form.ui \
+    UI/spacetab/textfile.ui \
+    UI/spacetab/videospace.ui
 
 RESOURCES += \
     resources.qrc

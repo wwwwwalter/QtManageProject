@@ -14,6 +14,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QTabWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     setupUi();
     //setGeometry(1300,100,400,800);
     QApplication::setStyle(QStyleFactory::create("Fusion"));
+    ui->stackedWidget->setCurrentWidget(ui->welcomePage);
+
+
 
     logoIcon.addPixmap(QPixmap(":/images/green/playback-progress.svg"));
     folderIcon.addPixmap(QPixmap(":/images/green/folder-open.svg"),QIcon::Normal,QIcon::On);
@@ -36,12 +40,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // init File system model
-    fileSystemRootDir = QDir::homePath();
-    fileSystemModel = new QFileSystemModel;
-    fileSystemModel->setRootPath(fileSystemRootDir.path());
-    ui->fileSystemTreeView->setModel(fileSystemModel);
-    ui->fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemRootDir.path()));
-    ui->fileSystemTreeView->setColumnWidth(0, 200);
+//    fileSystemRootDir = QDir::homePath();
+//    fileSystemModel = new QFileSystemModel;
+//    fileSystemModel->setRootPath(fileSystemRootDir.path());
+//    ui->fileSystemTreeView->setModel(fileSystemModel);
+//    ui->fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemRootDir.path()));
+//    ui->fileSystemTreeView->setColumnWidth(0, 200);
 
 
     // init project model
@@ -71,15 +75,41 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     connect(ui->projectTreeView,&QTreeView::clicked,this,[=](const QModelIndex &index){
-        selectedItemModelIndex = index;
+
     });
 
+
+
+
+
+
+    connect(ui->spaceTabPage,&SpaceTabWidget::hasTab,this,[=]{
+        ui->stackedWidget->setCurrentWidget(ui->spaceTabPage);
+    });
+    connect(ui->spaceTabPage,&SpaceTabWidget::noTab,this,[=]{
+        ui->stackedWidget->setCurrentWidget(ui->welcomePage);
+    });
+    connect(ui->spaceTabPage,&SpaceTabWidget::currentTabChanged,this,[=](QFileInfo fileInfo){
+
+        QStandardItem *rootItem =  projectModel->invisibleRootItem();
+
+
+
+
+
+
+
+    });
+    connect(this,&MainWindow::openSpaceFile,ui->spaceTabPage,&SpaceTabWidget::openSpaceFile);
+
+
     connect(ui->projectTreeView,&QTreeView::doubleClicked,this,[=](const QModelIndex &index){
-        selectedItemModelIndex = index;
-
         qDebug()<<index.data(Qt::UserRole+1)<<index.data(Qt::UserRole+2);
-        if(index.data(Qt::UserRole+1)==QString("file")){
 
+        QString type = index.data(Qt::UserRole+1).toString();
+        if(!type.contains("Folder")){
+            QFileInfo spaceFileInfo(index.data(Qt::UserRole+2).toString());
+            emit openSpaceFile(spaceFileInfo);
         }
     });
 }
@@ -210,6 +240,10 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
         projectConfigFile.close();
     }
 }
+
+
+
+
 
 void MainWindow::slotNewProject()
 {
@@ -431,6 +465,8 @@ void MainWindow::setupUi()
 
 
 
+
+
     fileMenu = menuBar()->addMenu(tr("File"));
     fileMenu->addAction(newFileAction);
     fileMenu->addAction(openFileAction);
@@ -456,6 +492,24 @@ void MainWindow::setupUi()
     projectMenu->addAction(renameProjectAction);
     projectMenu->addSeparator();
     projectMenu->addAction(deleteProjectAction);
+
+
+
+
+    viewMenu = menuBar()->addMenu(tr("View"));
+    viewMenu ->addAction(ui->projectListDockWidget->toggleViewAction());
+    viewMenu ->addAction(ui->mediaListDockWidget->toggleViewAction());
+    viewMenu ->addAction(ui->videoTrackDockWidget->toggleViewAction());
+    viewMenu ->addAction(ui->audioTrackDockWidget->toggleViewAction());
+    viewMenu ->addAction(ui->propertiesDockWidget->toggleViewAction());
+
+
+    ui->propertiesDockWidget->setVisible(false);
+
+
+
+
+
 
     connect(activeProjectAction,&QAction::triggered,this,&MainWindow::slotActiveProject);
     connect(newProjectAction, &QAction::triggered, this, &MainWindow::slotNewProject);

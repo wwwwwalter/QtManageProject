@@ -103,6 +103,7 @@ private:
     QFileDialog *fileDialog;
     QMenu *fileMenu;
     QMenu *projectMenu;
+    QMenu *viewMenu;
 
 
 
@@ -142,6 +143,10 @@ private:
 
 private:
     Ui::MainWindow *ui;
+
+signals:
+    void openSpaceFile(QFileInfo spaceFileInfo);
+
 
 
 };
