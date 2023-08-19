@@ -1,7 +1,24 @@
 <RCC>
     <qresource prefix="/">
         <file>qss/listview.qss</file>
-        <file>images/folder_open.svg</file>
-        <file>images/folder_close.svg</file>
+        <file>images/green/folder-close.svg</file>
+        <file>images/green/folder-open.svg</file>
+        <file>images/green/grid-two.svg</file>
+        <file>images/green/insert-table.svg</file>
+        <file>images/green/layout-three.svg</file>
+        <file>images/green/movie-board.svg</file>
+        <file>images/green/music-list.svg</file>
+        <file>images/green/playback-progress.svg</file>
+        <file>images/green/video.svg</file>
+        <file>images/green/view-grid-card.svg</file>
+        <file>images/green/view-list.svg</file>
+        <file>images/green/audio-file.svg</file>
+        <file>images/green/file-addition.svg</file>
+        <file>images/green/file-editing.svg</file>
+        <file>images/green/file-music.svg</file>
+        <file>images/green/layout-four.svg</file>
+        <file>images/green/video-file.svg</file>
+        <file>images/green/file-code.svg</file>
+        <file>images/green/file-code-one.svg</file>
     </qresource>
 </RCC>

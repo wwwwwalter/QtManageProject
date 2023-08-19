@@ -56,6 +56,7 @@ private:
 
     //projectModel
     QStandardItemModel *projectModel;
+    QItemSelectionModel *projectSelectModel;
     QModelIndex activeProjectModelIndex;
     QModelIndex selectedItemModelIndex;
 
@@ -70,6 +71,7 @@ private slots:
 
 
 
+
     //第二等级函数
 private:
     void addProjectToProjectTree(QDir projectDir);
@@ -81,7 +83,11 @@ private:
 
 private:
     //Icon
+    QIcon logoIcon;
     QIcon folderIcon;
+    QIcon spaceIcon;
+    QIcon playlistIcon;
+    QIcon configFileIcon;
 
 
 
@@ -136,6 +142,8 @@ private:
 
 private:
     Ui::MainWindow *ui;
+
+
 };
 
 #endif // MAINWINDOW_H

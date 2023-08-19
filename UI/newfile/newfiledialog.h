@@ -7,6 +7,7 @@
 #include <QListView>
 #include <QFileinfo>
 #include <QDir>
+#include <QIcon>
 
 namespace Ui {
 class NewFileDialog;
@@ -23,7 +24,15 @@ public:
 private:
     Ui::NewFileDialog *ui;
 
+    QIcon emptyFileIcon;
+    QIcon videoSpaceIcon;
+    QIcon audioSpaceIcon;
+    QIcon playListIcon;
+
+
+
     QStandardItemModel *model;
+    QItemSelectionModel *selectionModel;
 
     QString extensionName;
     QString fileName;

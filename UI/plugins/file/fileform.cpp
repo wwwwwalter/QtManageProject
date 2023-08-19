@@ -14,7 +14,7 @@ FileForm::FileForm(QWidget *parent) :
     ui->setupUi(this);
 
     //for standitem
-    setPluginIcon(QIcon(":/images/folder_open.svg"));
+    setPluginIcon(QIcon(":/images/green/folder-open.svg"));
     setPluginName(tr("FileForm"));
 
     //for right widget
@@ -56,6 +56,8 @@ QFileInfo FileForm::doCreateProject()
     QDir projectDir = workDir.path()+QDir::separator()+projectName;
     QFileInfo projectFileInfo(projectDir.path()+QDir::separator()+projectName+".xplayer");
     QFile projectFile(projectFileInfo.absoluteFilePath());
+    QFileInfo emptySpaceFileInfo(projectDir.path() + QDir::separator()+ "spaces" + QDir::separator() + "empty.space");
+    QFile emptySpaceFile(emptySpaceFileInfo.absoluteFilePath());
 
     if(!projectDir.exists()){
         if(workDir.mkpath(projectDir.path())){
@@ -74,6 +76,10 @@ QFileInfo FileForm::doCreateProject()
                 projectJsonObject.insert("name",QJsonValue(projectName));
 
                 rootJsonObject.insert("project",projectJsonObject);
+                emptySpaceFile.open(QFile::WriteOnly);
+                emptySpaceFile.close();
+                spaceJsonArray.append(QJsonValue(emptySpaceFileInfo.absoluteFilePath()));
+
                 rootJsonObject.insert("spaces",spaceJsonArray);
                 rootJsonObject.insert("playlists",resourcesJsonArray);
 

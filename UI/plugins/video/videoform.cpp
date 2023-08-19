@@ -13,7 +13,7 @@ VideoForm::VideoForm(QWidget *parent) :
     ui->setupUi(this);
 
     //for standitem
-    setPluginIcon(QIcon(":/images/folder_open.svg"));
+    setPluginIcon(QIcon(":/images/green/folder-open.svg"));
     setPluginName(tr("VideoForm"));
 
     //for right widget
