@@ -503,7 +503,7 @@ void MainWindow::setupUi()
 //    fileToolBar->addAction(updateProjectTreeAction);
 
     // 初始化状态栏
-    statusBar()->showMessage("欢迎使用 Qt Creator！");
+    //statusBar()->showMessage("欢迎使用 Qt Creator！");
 }
 
 
