@@ -12,9 +12,9 @@ public:
 
 public:
     virtual void openFile(QFileInfo fileInfo) = 0;
-    virtual void closeFile(QFileInfo fileInfo) = 0;
-    virtual void saveFile(QFileInfo fileInfo) = 0;
-    virtual void saveFileAs(QFileInfo sourceFileInfo,QFileInfo destFileInfo) = 0;
+    virtual void closeFile() = 0;
+    virtual void saveFile() = 0;
+    virtual void saveFileAs(QFileInfo destFileInfo) = 0;
 
 signals:
 

@@ -31,9 +31,7 @@ signals:
 
 
 
-    // QTabWidget interface
-protected:
-    virtual void tabRemoved(int index);
+
 };
 
 #endif // SPACETABWIDGET_H

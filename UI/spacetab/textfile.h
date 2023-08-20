@@ -26,9 +26,9 @@ private:
     // AbstractFile interface
 public:
     virtual void openFile(QFileInfo fileInfo);
-    virtual void closeFile(QFileInfo fileInfo);
-    virtual void saveFile(QFileInfo fileInfo);
-    virtual void saveFileAs(QFileInfo sourceFileInfo, QFileInfo destFileInfo);
+    virtual void closeFile();
+    virtual void saveFile();
+    virtual void saveFileAs(QFileInfo destFileInfo);
 };
 
 #endif // TEXTFILE_H

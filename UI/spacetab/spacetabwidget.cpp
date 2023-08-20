@@ -1,4 +1,6 @@
 #include "spacetabwidget.h"
+#include <QMessageBox>
+#include "abstractfile.h"
 
 SpaceTabWidget::SpaceTabWidget(QWidget *parent)
     : QTabWidget{parent}
@@ -19,6 +21,14 @@ SpaceTabWidget::SpaceTabWidget(QWidget *parent)
     connect(this,&SpaceTabWidget::tabCloseRequested,this,[=](int index){
 
         QWidget *willDeleteTab = widget(index);
+
+
+        if(QMessageBox::question(this,tr("Save File"),tr("Do you want save it?"))==QMessageBox::Yes){
+            qDebug()<<"OK";
+            static_cast<AbstractFile*>(willDeleteTab)->saveFile();
+        }
+
+
         removeTab(index);
         willDeleteTab->deleteLater();
 
@@ -100,8 +110,3 @@ void SpaceTabWidget::openSpaceFile(QFileInfo fileInfo)
 }
 
 
-
-void SpaceTabWidget::tabRemoved(int index)
-{
-    qDebug()<<index<<"be removed";
-}

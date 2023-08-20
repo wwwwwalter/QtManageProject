@@ -40,23 +40,24 @@ void TextFile::openFile(QFileInfo fileInfo)
     }
 }
 
-void TextFile::closeFile(QFileInfo fileInfo)
+void TextFile::closeFile()
 {
 }
 
-void TextFile::saveFile(QFileInfo fileInfo)
+void TextFile::saveFile()
 {
+    qDebug()<<"open for save";
     QFile file(privateFileInfo.absoluteFilePath());
     if(file.open(QFile::WriteOnly)){
         QString fileContent = ui->textEdit->toPlainText();
         QByteArray data = fileContent.toLocal8Bit();
         file.write(data);
-
+        qDebug()<<"save";
         file.close();
     }
 }
 
-void TextFile::saveFileAs(QFileInfo sourceFileInfo, QFileInfo destFileInfo)
+void TextFile::saveFileAs(QFileInfo destFileInfo)
 {
     QFile file(destFileInfo.absoluteFilePath());
     if(file.open(QFile::WriteOnly)){
