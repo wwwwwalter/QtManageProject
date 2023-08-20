@@ -116,7 +116,8 @@ MainWindow::MainWindow(QWidget *parent)
                     for(int i = 0;i<elemItem->rowCount();++i){
                         QStandardItem *fileItem = elemItem->child(i);
                         if(fileItem->data(Qt::UserRole+2).toString()==fileInfo.absoluteFilePath()){
-                            ui->projectTreeView->setCurrentIndex(elemItem->index());
+                            ui->projectTreeView->setCurrentIndex(fileItem->index());
+                            ui->projectTreeView->expand(elemItem->index());
                             ui->projectTreeView->expand(projectItem->index());
                             break;
                         }
