@@ -2,8 +2,8 @@
  <author/>
  <comment/>
  <exportmacro/>
- <class>Form</class>
- <widget name="Form" class="QWidget">
+ <class>SpaceFile</class>
+ <widget class="QWidget" name="SpaceFile">
   <property name="geometry">
    <rect>
     <x>0</x>

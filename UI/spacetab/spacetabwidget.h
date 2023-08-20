@@ -4,10 +4,8 @@
 #include <QWidget>
 #include <QTabWidget>
 #include <QTabBar>
-#include "emptyspace.h"
-#include "videospace.h"
-#include "audiospace.h"
-#include "playlist.h"
+#include "spacefile.h"
+#include "playlistfile.h"
 #include "textfile.h"
 #include <QFileInfo>
 #include <QFileInfoList>
@@ -32,6 +30,10 @@ signals:
     void currentTabChanged(QFileInfo fileInfo);
 
 
+
+    // QTabWidget interface
+protected:
+    virtual void tabRemoved(int index);
 };
 
 #endif // SPACETABWIDGET_H

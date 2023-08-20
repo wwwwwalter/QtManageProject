@@ -16,9 +16,10 @@ SOURCES += \
     UI/plugins/audio/audioform.cpp \
     UI/plugins/file/fileform.cpp \
     UI/plugins/video/videoform.cpp \
+    UI/spacetab/abstractfile.cpp \
     UI/spacetab/audiospace.cpp \
-    UI/spacetab/emptyspace.cpp \
-    UI/spacetab/form.cpp \
+    UI/spacetab/playlistfile.cpp \
+    UI/spacetab/spacefile.cpp \
     UI/spacetab/spacetabwidget.cpp \
     UI/spacetab/textfile.cpp \
     UI/spacetab/videospace.cpp \
@@ -32,9 +33,10 @@ HEADERS += \
     UI/plugins/audio/audioform.h \
     UI/plugins/file/fileform.h \
     UI/plugins/video/videoform.h \
+    UI/spacetab/abstractfile.h \
     UI/spacetab/audiospace.h \
-    UI/spacetab/emptyspace.h \
-    UI/spacetab/form.h \
+    UI/spacetab/playlistfile.h \
+    UI/spacetab/spacefile.h \
     UI/spacetab/spacetabwidget.h \
     UI/spacetab/textfile.h \
     UI/spacetab/videospace.h
@@ -52,8 +54,8 @@ FORMS += \
     UI/plugins/file/fileform.ui \
     UI/plugins/video/videoform.ui \
     UI/spacetab/audiospace.ui \
-    UI/spacetab/emptyspace.ui \
-    UI/spacetab/form.ui \
+    UI/spacetab/playlistfile.ui \
+    UI/spacetab/spacefile.ui \
     UI/spacetab/textfile.ui \
     UI/spacetab/videospace.ui
 

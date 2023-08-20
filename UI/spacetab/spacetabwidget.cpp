@@ -17,6 +17,7 @@ SpaceTabWidget::SpaceTabWidget(QWidget *parent)
 
 
     connect(this,&SpaceTabWidget::tabCloseRequested,this,[=](int index){
+
         QWidget *willDeleteTab = widget(index);
         removeTab(index);
         willDeleteTab->deleteLater();
@@ -43,7 +44,7 @@ void SpaceTabWidget::openSpaceFile(QFileInfo fileInfo)
 {
 
 
-
+    //find already opened file,then setCurrent.
     for(int i = 0;i<count();++i){
         if(widget(i)->whatsThis()==fileInfo.absoluteFilePath()){
             setCurrentIndex(i);
@@ -52,14 +53,40 @@ void SpaceTabWidget::openSpaceFile(QFileInfo fileInfo)
     }
 
 
+    //open file
+    QString fileSuffix = fileInfo.suffix();
+
+    if(fileSuffix=="space"){
+        SpaceFile *spaceFile = new SpaceFile;
+        spaceFile->setWhatsThis(fileInfo.absoluteFilePath());
+        addTab(spaceFile,QIcon(),fileInfo.fileName());
+        setCurrentWidget(spaceFile);
+        setTabToolTip(currentIndex(),fileInfo.absoluteFilePath());
+    }
+    else if(fileSuffix=="playlist"){
+        PlayListFile *playListFile = new PlayListFile;
+        playListFile->setWhatsThis(fileInfo.absoluteFilePath());
+        addTab(playListFile,QIcon(),fileInfo.fileName());
+        setCurrentWidget(playListFile);
+        setTabToolTip(currentIndex(),fileInfo.absoluteFilePath());
+    }
+    else if(fileSuffix=="xplayer"||fileSuffix=="json"||fileSuffix=="txt"){
+        TextFile *textFile = new TextFile(fileInfo);
+        textFile->setWhatsThis(fileInfo.absoluteFilePath());
+        addTab(textFile,QIcon(),fileInfo.fileName());
+        setCurrentWidget(textFile);
+        setTabToolTip(currentIndex(),fileInfo.absoluteFilePath());
+
+    }
+    else{
+        TextFile *textFile = new TextFile(fileInfo);
+        textFile->setWhatsThis(fileInfo.absoluteFilePath());
+        addTab(textFile,QIcon(),fileInfo.fileName());
+        setCurrentWidget(textFile);
+        setTabToolTip(currentIndex(),fileInfo.absoluteFilePath());
+    }
 
 
-
-    EmptySpace *emptySpace = new EmptySpace;
-    emptySpace->setWhatsThis(fileInfo.absoluteFilePath());
-    addTab(emptySpace,QIcon(":/images/green/insert-table.svg"),fileInfo.fileName());
-    setCurrentWidget(emptySpace);
-    setTabToolTip(currentIndex(),fileInfo.absoluteFilePath());
 
 
 
@@ -72,3 +99,9 @@ void SpaceTabWidget::openSpaceFile(QFileInfo fileInfo)
     }
 }
 
+
+
+void SpaceTabWidget::tabRemoved(int index)
+{
+    qDebug()<<index<<"be removed";
+}
