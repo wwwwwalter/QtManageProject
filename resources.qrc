@@ -20,5 +20,8 @@
         <file>images/green/video-file.svg</file>
         <file>images/green/file-code.svg</file>
         <file>images/green/file-code-one.svg</file>
+        <file>images/grey/homepage_logo.png</file>
+        <file>images/grey/homepage_logo.svg</file>
+        <file>markdowm/homepage.md</file>
     </qresource>
 </RCC>

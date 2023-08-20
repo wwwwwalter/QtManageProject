@@ -57,8 +57,8 @@ private:
     //projectModel
     QStandardItemModel *projectModel;
     QItemSelectionModel *projectSelectModel;
-    QModelIndex activeProjectModelIndex;
-    QModelIndex selectedItemModelIndex;
+
+
 
 
     //第一等级函数
@@ -66,7 +66,7 @@ private slots:
     void slotNewProject();
     void slotOpenProject();
     void slotCloseProject();
-    void slotActiveProject();
+    void closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFileInfo);
     void slotNewFile();
 
 
@@ -74,7 +74,6 @@ private slots:
 
     //第二等级函数
 private:
-    void addProjectToProjectTree(QDir projectDir);
     void getDirContents(QDir dir,QStandardItem *parentItem);
     void parseProjectConfigFile(QFileInfo projectConfigFileInfo);
 
@@ -137,7 +136,6 @@ private:
     QToolBar *projectToolBar;
     QString currentProjectName;
     QString currentFileName;
-    bool isProjectOpen;
 
 
 
@@ -146,6 +144,7 @@ private:
 
 signals:
     void openSpaceFile(QFileInfo spaceFileInfo);
+    void closeSpaceFile(QFileInfo spaceFileInfo);
 
 
 

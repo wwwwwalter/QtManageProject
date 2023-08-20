@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setupUi();
     //setGeometry(1300,100,400,800);
+    setWindowTitle(tr("XPlayer Station"));
     QApplication::setStyle(QStyleFactory::create("Fusion"));
     ui->stackedWidget->setCurrentWidget(ui->welcomePage);
 
@@ -56,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->projectTreeView->header()->hide();
     ui->projectTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->projectTreeView,&QTreeView::customContextMenuRequested,this,[=](const QPoint &pos){
-        selectedItemModelIndex = ui->projectTreeView->indexAt(pos);
+        ui->projectTreeView->currentIndex() = ui->projectTreeView->indexAt(pos);
 
 
         QMenu projectTreeViewMenu(ui->projectTreeView);
@@ -70,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     connect(projectSelectModel,&QItemSelectionModel::currentChanged,this,[=](const QModelIndex &current, const QModelIndex &previous){
-        selectedItemModelIndex = current;
+
     });
 
 
@@ -90,26 +91,56 @@ MainWindow::MainWindow(QWidget *parent)
         ui->stackedWidget->setCurrentWidget(ui->welcomePage);
     });
     connect(ui->spaceTabPage,&SpaceTabWidget::clickedTabBar,this,[=](QFileInfo fileInfo){
-
-        QStandardItem *rootItem =  projectModel->invisibleRootItem();
         qDebug()<<"clicked:"<<fileInfo;
 
+        if(fileInfo.suffix()=="xplayer"){
+            QStandardItem *rootItem =  projectModel->invisibleRootItem();
+            for(int i = 0;i<rootItem->rowCount();++i){
+                QStandardItem *projectItem = rootItem->child(i);
+                for(int i = 0;i<projectItem->rowCount();++i){
+                    QStandardItem *elemItem = projectItem->child(i);
+                    if(elemItem->data(Qt::UserRole+2).toString()==fileInfo.absoluteFilePath()){
+                        ui->projectTreeView->setCurrentIndex(elemItem->index());
+                        ui->projectTreeView->expand(projectItem->index());
+                        break;
+                    }
+                }
+            }
+        }
+        else{
+            QStandardItem *rootItem =  projectModel->invisibleRootItem();
+            for(int i = 0;i<rootItem->rowCount();++i){
+                QStandardItem *projectItem = rootItem->child(i);
+                for(int i = 0;i<projectItem->rowCount();++i){
+                    QStandardItem *elemItem = projectItem->child(i);
+                    for(int i = 0;i<elemItem->rowCount();++i){
+                        QStandardItem *fileItem = elemItem->child(i);
+                        if(fileItem->data(Qt::UserRole+2).toString()==fileInfo.absoluteFilePath()){
+                            ui->projectTreeView->setCurrentIndex(elemItem->index());
+                            ui->projectTreeView->expand(projectItem->index());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
 
 
-
-
-
+        return;
     });
+
     connect(this,&MainWindow::openSpaceFile,ui->spaceTabPage,&SpaceTabWidget::openSpaceFile);
+    connect(this,&MainWindow::closeSpaceFile,ui->spaceTabPage,&SpaceTabWidget::closeSpaceFile);
 
 
     connect(ui->projectTreeView,&QTreeView::doubleClicked,this,[=](const QModelIndex &index){
         qDebug()<<index.data(Qt::UserRole+1)<<index.data(Qt::UserRole+2);
 
-        QString type = index.data(Qt::UserRole+1).toString();
-        if(!type.contains("Folder")){
+        if(index.data(Qt::UserRole+1).toString()=="file"){
             QFileInfo spaceFileInfo(index.data(Qt::UserRole+2).toString());
+            QStandardItem *spaceFileItem = projectModel->itemFromIndex(index);
+            spaceFileItem->setData("open",Qt::UserRole+3);
             emit openSpaceFile(spaceFileInfo);
         }
     });
@@ -117,20 +148,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-void MainWindow::addProjectToProjectTree(QDir projectDir)
-{
-    QStandardItem *projectItem = new QStandardItem(folderIcon,projectDir.dirName());
-    projectItem->setData(QString("projectfolder"),Qt::UserRole+1);
-    projectItem->setData(projectDir.path(),Qt::UserRole+2);
-    projectModel->appendRow(projectItem);
-    getDirContents(projectDir,projectItem);
-    ui->projectTreeView->setExpanded(projectModel->indexFromItem(projectItem),true);
 
-    ui->projectTreeView->setCurrentIndex(projectModel->indexFromItem(projectItem));
-    selectedItemModelIndex = ui->projectTreeView->currentIndex();
-
-    slotActiveProject();
-}
 
 void MainWindow::getDirContents(QDir dir,QStandardItem *parentItem)
 {
@@ -158,6 +176,21 @@ void MainWindow::getDirContents(QDir dir,QStandardItem *parentItem)
 
 void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
 {
+
+    //check dup projectConfigFile project
+//    QList<QStandardItem*> sameNameProjectItemList = projectModel->findItems(projectName);
+//    foreach (QStandardItem* projectItem, sameNameProjectItemList) {
+//        if(projectItem->data(Qt::UserRole+2).toString()==projectConfigFileInfo.absolutePath()){
+//            qDebug()<<"is opened, just refresh";
+
+////            projectConfigFile.close();
+////            projectModel->removeRow(projectItem->row());
+////            parseProjectConfigFile(projectConfigFileInfo);
+//            return;
+//        }
+//    }
+
+
     QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
 
     if(projectConfigFile.open(QFile::ReadOnly)){
@@ -175,18 +208,7 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
 
 
 
-            //check dup projectConfigFile project
-            QList<QStandardItem*> sameNameProjectItemList = projectModel->findItems(projectName);
-            foreach (QStandardItem* projectItem, sameNameProjectItemList) {
-                if(projectItem->data(Qt::UserRole+2).toString()==projectConfigFileInfo.absolutePath()){
-                    qDebug()<<"is opened, just refresh";
 
-                    projectConfigFile.close();
-                    projectModel->removeRow(projectItem->row());
-                    parseProjectConfigFile(projectConfigFileInfo);
-                    return;
-                }
-            }
 
 
             //project
@@ -202,6 +224,7 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
             QStandardItem *configFileItem = new QStandardItem(configFileIcon,projectConfigFileInfo.fileName());
             configFileItem->setData("file",Qt::UserRole+1);
             configFileItem->setData(projectConfigFileInfo.absoluteFilePath(),Qt::UserRole+2);
+            configFileItem->setData("close",Qt::UserRole+3);
             configFileItem->setToolTip(projectConfigFileInfo.absoluteFilePath());
 
             //spaces
@@ -214,6 +237,7 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
                 QStandardItem *spaceItem = new QStandardItem(spaceIcon,spaceFileInfo.fileName());
                 spaceItem->setData("file",Qt::UserRole+1);
                 spaceItem->setData(spaceFileInfo.absoluteFilePath(),Qt::UserRole+2);
+                spaceItem->setData("close",Qt::UserRole+3);
                 spaceItem->setToolTip(spaceFileInfo.absoluteFilePath());
                 spacesFolderItem->appendRow(spaceItem);
             }
@@ -229,6 +253,7 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
                 QStandardItem *playListItem = new QStandardItem(playlistIcon,playListFileInfo.fileName());
                 playListItem->setData("file",Qt::UserRole+1);
                 playListItem->setData(playListFileInfo.absoluteFilePath(),Qt::UserRole+2);
+                playListItem->setData("close",Qt::UserRole+3);
                 playListItem->setToolTip(playListFileInfo.absoluteFilePath());
                 playlistsFolderItem->appendRow(playListItem);
             }
@@ -285,24 +310,54 @@ void MainWindow::slotOpenProject()
 
 void MainWindow::slotCloseProject()
 {
-    if(selectedItemModelIndex.data(Qt::UserRole+1)==QString("projectfolder")){
-        projectModel->removeRow(selectedItemModelIndex.row());
-
+    //find project root folder
+    QModelIndex modelIndex = ui->projectTreeView->currentIndex();
+    while(modelIndex.parent().model()!=nullptr){
+        modelIndex = modelIndex.parent();
     }
+
+    //close all opened file of this project
+    QStandardItem *projectItem = projectModel->itemFromIndex(modelIndex);
+    for(int i = 0;i<projectItem->rowCount();++i){
+        QStandardItem *elemItem = projectItem->child(i);
+        if(elemItem->data(Qt::UserRole+1).toString()=="file"){
+            if(elemItem->data(Qt::UserRole+3).toString()=="open"){
+                emit closeSpaceFile(QFileInfo(elemItem->data(Qt::UserRole+2).toString()));
+                //elemItem->setData("close",Qt::UserRole+3);
+            }
+        }
+        else{
+            for(int i = 0;i<elemItem->rowCount();++i){
+                QStandardItem *fileItem = elemItem->child(i);
+                if(fileItem->data(Qt::UserRole+3).toString()=="open"){
+                    emit closeSpaceFile(QFileInfo(fileItem->data(Qt::UserRole+2).toString()));
+                    //fileItem->setData("close",Qt::UserRole+3);
+                }
+            }
+        }
+    }
+
+    //remove project view from projectTreeView
+    projectModel->removeRow(modelIndex.row());
+
 }
 
-void MainWindow::slotActiveProject()
-{
-    if(selectedItemModelIndex.data(Qt::UserRole+1)==QString("projectfolder")){
-        activeProjectModelIndex = selectedItemModelIndex;
-        QStandardItem *activeProjectItem = projectModel->itemFromIndex(activeProjectModelIndex);
-
-        QFont font;
-        font.setWeight(QFont::Bold);
-        activeProjectItem->setFont(font);
-
+void MainWindow::closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFileInfo){
+    QStandardItem *rootItem =  projectModel->invisibleRootItem();
+    for(int i = 0;i<rootItem->rowCount();++i){
+        QStandardItem *projectItem = rootItem->child(i);
+        for(int i = 0;i<projectItem->rowCount();++i){
+            QStandardItem *elemItem = projectItem->child(i);
+            if(elemItem->data(Qt::UserRole+2).toString()==projectConfigFileInfo.absoluteFilePath()){
+                qDebug()<<projectItem->row();
+                projectModel->removeRow(projectItem->row());
+                break;
+            }
+        }
     }
-}
+};
+
+
 
 void MainWindow::slotNewFile()
 {
@@ -536,16 +591,17 @@ void MainWindow::setupUi()
 
 
 
-    connect(activeProjectAction,&QAction::triggered,this,&MainWindow::slotActiveProject);
+
     connect(newProjectAction, &QAction::triggered, this, &MainWindow::slotNewProject);
     connect(openProjectAction, &QAction::triggered, this, &MainWindow::slotOpenProject);
     connect(closeProjectAction,&QAction::triggered,this,&MainWindow::slotCloseProject);
     connect(newFileAction, &QAction::triggered, this, &MainWindow::slotNewFile);
 
+
 //    connect(saveProjectAction, &QAction::triggered, this, &MainWindow::slotSaveProject);
 //    connect(saveAsProjectAction, &QAction::triggered, this, &MainWindow::slotSaveAsProject);
 //    connect(renameProjectAction, &QAction::triggered, this, &MainWindow::slotRenameProject);
-    connect(deleteProjectAction, &QAction::triggered, this, &MainWindow::slotCloseProject);
+
 
 //    connect(openFileAction, &QAction::triggered, this, &MainWindow::slotOpenFile);
 //    connect(saveFileAction, &QAction::triggered, this, &MainWindow::slotSaveFile);

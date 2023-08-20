@@ -23,6 +23,7 @@ public:
 
 public slots:
     void openSpaceFile(QFileInfo fileInfo);
+    void closeSpaceFile(QFileInfo fileInfo);
 
 signals:
     void hasTab();

@@ -23,6 +23,7 @@ SOURCES += \
     UI/spacetab/spacetabwidget.cpp \
     UI/spacetab/textfile.cpp \
     UI/spacetab/videospace.cpp \
+    UI/welcome/welcomewidget.cpp \
     main.cpp
 
 HEADERS += \
@@ -39,7 +40,8 @@ HEADERS += \
     UI/spacetab/spacefile.h \
     UI/spacetab/spacetabwidget.h \
     UI/spacetab/textfile.h \
-    UI/spacetab/videospace.h
+    UI/spacetab/videospace.h \
+    UI/welcome/welcomewidget.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -57,7 +59,10 @@ FORMS += \
     UI/spacetab/playlistfile.ui \
     UI/spacetab/spacefile.ui \
     UI/spacetab/textfile.ui \
-    UI/spacetab/videospace.ui
+    UI/spacetab/videospace.ui \
+    UI/welcome/welcomewidget.ui
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES +=
