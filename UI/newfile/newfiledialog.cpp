@@ -7,7 +7,7 @@
 #include <QPixmap>
 #include <QString>
 
-NewFileDialog::NewFileDialog(QWidget *parent) :
+NewFileDialog::NewFileDialog(QDir saveDir, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NewFileDialog)
 {
@@ -18,7 +18,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     audioSpaceIcon.addPixmap(QPixmap(":/images/green/layout-four.svg"));
     playListIcon.addPixmap(QPixmap(":/images/green/view-list.svg"));
 
-    ui->savePath->setText("C:/Users/study/Desktop/testfile");
+    ui->savePath->setText(saveDir.absolutePath());
 
     model = new QStandardItemModel;
     ui->listView->setModel(model);
@@ -27,15 +27,15 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui->listView->setSelectionModel(selectionModel);
 
     QStandardItem *emptySpaceItem = new QStandardItem(videoSpaceIcon,tr("Empty Space"));
-    emptySpaceItem->setData(".space",Qt::UserRole+1);
+    emptySpaceItem->setData("space",Qt::UserRole+1);
     QStandardItem *videoSpaceItem = new QStandardItem(videoSpaceIcon,tr("Video Space"));
-    videoSpaceItem->setData(".space",Qt::UserRole+1);
+    videoSpaceItem->setData("space",Qt::UserRole+1);
     QStandardItem *audioSpaceItem = new QStandardItem(audioSpaceIcon,tr("Audio Space"));
-    audioSpaceItem->setData(".space",Qt::UserRole+1);
-    QStandardItem *playlistItem = new QStandardItem(playListIcon,tr("Play list"));
-    playlistItem->setData(".playlist",Qt::UserRole+1);
-    QStandardItem *textFileItem = new QStandardItem(audioSpaceIcon,tr("Text File"));
-    textFileItem->setData(".txt",Qt::UserRole+1);
+    audioSpaceItem->setData("space",Qt::UserRole+1);
+    QStandardItem *playlistItem = new QStandardItem(playListIcon,tr("Playlist"));
+    playlistItem->setData("playlist",Qt::UserRole+1);
+    QStandardItem *textFileItem = new QStandardItem(audioSpaceIcon,tr("Textfile"));
+    textFileItem->setData("txt",Qt::UserRole+1);
     model->appendRow(emptySpaceItem);
     model->appendRow(videoSpaceItem);
     model->appendRow(audioSpaceItem);
@@ -49,7 +49,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 
     connect(selectionModel,&QItemSelectionModel::currentChanged,this,[=](const QModelIndex &current, const QModelIndex &previous){
         ui->stackedWidget->setCurrentIndex(current.row());
-        extensionName = current.data(Qt::UserRole+1).toString();
+        suffix = current.data(Qt::UserRole+1).toString();
         qDebug()<<current.row();
     });
 
@@ -82,7 +82,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
             return;
         }
         else{
-            if(extensionName==".space"){
+            if(suffix=="space"){
                 QFileInfo newFileInfo; newFileInfo = QFileInfo(savePath+QDir::separator()+fileName+".space");
                 QFile newFile(newFileInfo.filePath());
                 QDir saveDir(savePath);
@@ -100,10 +100,9 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
                         QJsonObject layoutJsonObject;
                         QJsonArray mediaJsonArray;
 
+                        rootJsonObject.insert("name",QJsonValue(fileName));
                         layoutJsonObject.insert("rols",QJsonValue(2));
                         layoutJsonObject.insert("cols",QJsonValue(2));
-
-                        rootJsonObject.insert("name",QJsonValue(fileName));
                         rootJsonObject.insert("layout",layoutJsonObject);
                         rootJsonObject.insert("medias",mediaJsonArray);
 
@@ -122,7 +121,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
                     return;
                 }
             }
-            else if(extensionName==".playlist"){
+            else if(suffix=="playlist"){
                 QFileInfo newFileInfo; newFileInfo = QFileInfo(savePath+QDir::separator()+fileName+".playlist");
                 QFile newFile(newFileInfo.filePath());
                 QDir saveDir(savePath);
@@ -154,7 +153,11 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
                     ui->tips->setText(tr("Tips: file already exists!"));
                     return;
                 }
-            }else{
+            }
+            else if(suffix=="txt"){
+
+            }
+            else{
                 //empty
             }
 

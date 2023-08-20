@@ -18,7 +18,7 @@ class NewFileDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit NewFileDialog(QWidget *parent = nullptr);
+    explicit NewFileDialog(QDir saveDir, QWidget *parent = nullptr);
     ~NewFileDialog();
 
 private:
@@ -34,7 +34,7 @@ private:
     QStandardItemModel *model;
     QItemSelectionModel *selectionModel;
 
-    QString extensionName;
+    QString suffix;
     QString fileName;
     QString savePath;
     QFileInfo fileInfo;

@@ -54,41 +54,36 @@ QFileInfo FileForm::doCreateProject()
     }
 
     QDir projectDir = workDir.path()+QDir::separator()+projectName;
-    QFileInfo projectFileInfo(projectDir.path()+QDir::separator()+projectName+".xplayer");
-    QFile projectFile(projectFileInfo.absoluteFilePath());
-    QFileInfo emptySpaceFileInfo(projectDir.path() + QDir::separator()+ "spaces" + QDir::separator() + "empty.space");
-    QFile emptySpaceFile(emptySpaceFileInfo.absoluteFilePath());
+    QFileInfo projectConfigFileInfo(projectDir.path()+QDir::separator()+projectName+".xplayer");
+    QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
+
 
     if(!projectDir.exists()){
         if(workDir.mkpath(projectDir.path())){
             //project floders
-            projectDir.mkdir("spaces");
-            projectDir.mkdir("playlists");
+            //projectDir.mkdir("spaces");
+            //projectDir.mkdir("playlists");
 
             //project file
-            if(projectFile.open(QFile::WriteOnly)){
+            if(projectConfigFile.open(QFile::WriteOnly)){
                 QJsonDocument jsonDoc;
                 QJsonObject rootJsonObject;
-                QJsonObject projectJsonObject;
-                QJsonArray spaceJsonArray;
+
+                QJsonArray spacesJsonArray;
                 QJsonArray resourcesJsonArray;
 
-                projectJsonObject.insert("name",QJsonValue(projectName));
 
-                rootJsonObject.insert("project",projectJsonObject);
-                emptySpaceFile.open(QFile::WriteOnly);
-                emptySpaceFile.close();
-                spaceJsonArray.append(QJsonValue(emptySpaceFileInfo.absoluteFilePath()));
 
-                rootJsonObject.insert("spaces",spaceJsonArray);
+
+                rootJsonObject.insert("spaces",spacesJsonArray);
                 rootJsonObject.insert("playlists",resourcesJsonArray);
 
 
 
                 jsonDoc.setObject(rootJsonObject);
-                projectFile.write(jsonDoc.toJson());
-                projectFile.close();
-                return projectFileInfo;
+                projectConfigFile.write(jsonDoc.toJson());
+                projectConfigFile.close();
+                return projectConfigFileInfo;
 
             }
         }
