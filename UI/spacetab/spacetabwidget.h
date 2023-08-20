@@ -27,7 +27,7 @@ public slots:
 signals:
     void hasTab();
     void noTab();
-    void currentTabChanged(QFileInfo fileInfo);
+    void clickedTabBar(QFileInfo fileInfo);
 
 
 

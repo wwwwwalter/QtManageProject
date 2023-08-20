@@ -89,9 +89,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->spaceTabPage,&SpaceTabWidget::noTab,this,[=]{
         ui->stackedWidget->setCurrentWidget(ui->welcomePage);
     });
-    connect(ui->spaceTabPage,&SpaceTabWidget::currentTabChanged,this,[=](QFileInfo fileInfo){
+    connect(ui->spaceTabPage,&SpaceTabWidget::clickedTabBar,this,[=](QFileInfo fileInfo){
 
         QStandardItem *rootItem =  projectModel->invisibleRootItem();
+        qDebug()<<"clicked:"<<fileInfo;
 
 
 

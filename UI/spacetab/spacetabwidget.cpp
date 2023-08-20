@@ -32,9 +32,9 @@ SpaceTabWidget::SpaceTabWidget(QWidget *parent)
     });
 
 
-    connect(this,&SpaceTabWidget::currentChanged,this,[=](int index){
+    connect(this,&SpaceTabWidget::tabBarClicked,this,[=](int index){
         QFileInfo fileInfo(widget(index)->whatsThis());
-        emit currentTabChanged(fileInfo);
+        emit clickedTabBar(fileInfo);
 
     });
 
