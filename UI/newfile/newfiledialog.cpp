@@ -12,6 +12,7 @@ NewFileDialog::NewFileDialog(QDir saveDir, QWidget *parent) :
     ui(new Ui::NewFileDialog)
 {
     ui->setupUi(this);
+    setWindowTitle(tr("Create New File"));
 
     emptyFileIcon.addPixmap(QPixmap(":/images/green/file-addition.svg"));
     videoSpaceIcon.addPixmap(QPixmap(":/images/green/layout-four.svg"));

@@ -10,6 +10,7 @@
 #include <QStyleFactory>
 #include <UI/newproject/newprojectdialog.h>
 #include <UI/newfile/newfiledialog.h>
+#include <UI/removefile/removefiledialog.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -460,7 +461,7 @@ void MainWindow::slotNewFile()
             }
         }
 
-        //read json file
+        //read project json file
         QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
         if(projectConfigFile.open(QFile::ReadOnly)){
             QByteArray jsonData = projectConfigFile.readAll();
@@ -515,7 +516,7 @@ void MainWindow::slotAddExistingFile()
     for(const QString &absoluteFilePath : openFilesAbsoluteFilePath){
         QFileInfo newFileInfo(absoluteFilePath);
 
-        //find projectConfigFile
+        //find projectConfigFile by projectfolder
         QStandardItem *item = projectModel->itemFromIndex(modelIndex);
         QFileInfo projectConfigFileInfo;
         for(int i = 0;i<item->rowCount();++i){
@@ -525,7 +526,7 @@ void MainWindow::slotAddExistingFile()
             }
         }
 
-        //read json file
+        //read project json file
         QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
         if(projectConfigFile.open(QFile::ReadOnly)){
             QByteArray jsonData = projectConfigFile.readAll();
@@ -544,7 +545,6 @@ void MainWindow::slotAddExistingFile()
                         for(i = 0;i<spacesJsonArray.count();++i){
                             QJsonValue value = spacesJsonArray.at(i);
                             if(value.toString()==newFileInfo.absoluteFilePath()){
-                                qDebug()<<"break";
                                 break;
                             }
                         }
@@ -559,7 +559,6 @@ void MainWindow::slotAddExistingFile()
                         for(i = 0;i<playlistsJsonArray.count();++i){
                             QJsonValue value = playlistsJsonArray.at(i);
                             if(value.toString()==newFileInfo.absoluteFilePath()){
-                                qDebug()<<"break";
                                 break;
                             }
                         }
@@ -577,6 +576,101 @@ void MainWindow::slotAddExistingFile()
         }
         parseProjectConfigFile(projectConfigFileInfo);
     }
+
+}
+
+void MainWindow::slotRemoveFile()
+{
+    QModelIndex removedIndex = ui->projectTreeView->currentIndex();
+    QFileInfo removedFileInfo(removedIndex.data(Qt::UserRole+2).toString());
+
+    RemoveFileDialog *removeFileDialog = new RemoveFileDialog(removedFileInfo,this);
+    connect(removeFileDialog,&QDialog::accepted,this,[=]{
+        //find project root folder
+        QModelIndex modelIndex = ui->projectTreeView->currentIndex();
+        while(modelIndex.parent().model()!=nullptr){
+            modelIndex = modelIndex.parent();
+        }
+
+        //find projectConfigFile
+        QStandardItem *item = projectModel->itemFromIndex(modelIndex);
+        QFileInfo projectConfigFileInfo;
+        for(int i = 0;i<item->rowCount();++i){
+            if(item->child(i)->text().contains(".xplayer")){
+                projectConfigFileInfo.setFile(item->child(i)->data(Qt::UserRole+2).toString());
+                break;
+            }
+        }
+
+        //read project json file
+        QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
+        if(projectConfigFile.open(QFile::ReadOnly)){
+            QByteArray jsonData = projectConfigFile.readAll();
+            QJsonParseError jsonError;
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData,&jsonError);
+            if(jsonError.error==QJsonParseError::NoError&&!jsonDoc.isNull()){
+                projectConfigFile.close();
+
+                //update jsonDoc and write to jsonfile
+                if(projectConfigFile.open(QFile::WriteOnly)){
+                    QJsonObject rootJsonObject = jsonDoc.object();//new
+                    if(removedFileInfo.suffix()=="space"){
+                        QJsonArray spacesJsonArray = rootJsonObject.value("spaces").toArray();
+                        for(int i = 0;i<spacesJsonArray.count();++i){
+                            if(spacesJsonArray.at(i).toString()==removedFileInfo.absoluteFilePath()){
+                                spacesJsonArray.removeAt(i);
+                                break;
+                            }
+                        }
+                        rootJsonObject["spaces"] = spacesJsonArray;
+                    }
+                    else if(removedFileInfo.suffix()=="playlist"){
+                        QJsonArray playlistsJsonArray = rootJsonObject.value("playlists").toArray();
+                        for(int i = 0;i<playlistsJsonArray.count();++i){
+                            if(playlistsJsonArray.at(i).toString()==removedFileInfo.absoluteFilePath()){
+                                playlistsJsonArray.removeAt(i);
+                                break;
+                            }
+                        }
+                        rootJsonObject["playlists"]=playlistsJsonArray;
+                    }
+                    jsonDoc.setObject(rootJsonObject);
+                    projectConfigFile.write(jsonDoc.toJson());
+                    projectConfigFile.close();
+                }
+            }
+            projectConfigFile.close();
+        }
+        parseProjectConfigFile(projectConfigFileInfo);
+
+    });
+
+    connect(removeFileDialog,&QDialog::rejected,this,[=]{
+
+    });
+
+
+
+
+    removeFileDialog->exec();
+    removeFileDialog->deleteLater();
+
+
+
+
+//    QModelIndex deleteIndex = ui->projectTreeView->currentIndex();
+//    projectModel->removeRow(deleteIndex.row(),deleteIndex.parent());
+//    return;
+
+
+
+//    //find project root folder
+//    QModelIndex modelIndex = ui->projectTreeView->currentIndex();
+//    while(modelIndex.parent().model()!=nullptr){
+//        modelIndex = modelIndex.parent();
+//    }
+
+
 
 }
 
@@ -761,6 +855,7 @@ void MainWindow::setupUi()
     connect(closeProjectAction,&QAction::triggered,this,&MainWindow::slotCloseProject);
     connect(newFileAction, &QAction::triggered, this, &MainWindow::slotNewFile);
     connect(addExistingFileAction,&QAction::triggered,this,&MainWindow::slotAddExistingFile);
+    connect(removeFileAction,&QAction::triggered,this,&MainWindow::slotRemoveFile);
 
 
 //    connect(saveProjectAction, &QAction::triggered, this, &MainWindow::slotSaveProject);

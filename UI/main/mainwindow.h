@@ -70,6 +70,7 @@ private slots:
     void closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFileInfo);
     void slotNewFile();
     void slotAddExistingFile();
+    void slotRemoveFile();
 
 
 

@@ -16,6 +16,7 @@ SOURCES += \
     UI/plugins/audio/audioform.cpp \
     UI/plugins/file/fileform.cpp \
     UI/plugins/video/videoform.cpp \
+    UI/removefile/removefiledialog.cpp \
     UI/spacetab/abstractfile.cpp \
     UI/spacetab/audiospace.cpp \
     UI/spacetab/playlistfile.cpp \
@@ -34,6 +35,7 @@ HEADERS += \
     UI/plugins/audio/audioform.h \
     UI/plugins/file/fileform.h \
     UI/plugins/video/videoform.h \
+    UI/removefile/removefiledialog.h \
     UI/spacetab/abstractfile.h \
     UI/spacetab/audiospace.h \
     UI/spacetab/playlistfile.h \
@@ -55,6 +57,7 @@ FORMS += \
     UI/plugins/audio/audioform.ui \
     UI/plugins/file/fileform.ui \
     UI/plugins/video/videoform.ui \
+    UI/removefile/removefiledialog.ui \
     UI/spacetab/audiospace.ui \
     UI/spacetab/playlistfile.ui \
     UI/spacetab/spacefile.ui \
