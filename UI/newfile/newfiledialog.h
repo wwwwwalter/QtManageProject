@@ -5,7 +5,7 @@
 #include <QStandardItemModel>
 #include <QModelIndex>
 #include <QListView>
-#include <QFileinfo>
+#include <QFileInfo>
 #include <QDir>
 #include <QIcon>
 
