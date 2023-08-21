@@ -207,6 +207,25 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
                         QStandardItem *elementItem = projectFolderItem->child(i);
                         //space
                         if(elementItem->text()=="spaces"){
+                            //step1:remove viewitem that is not in json
+                            for(int i = 0;i<elementItem->rowCount();){
+                                QStandardItem *fileItem = elementItem->child(i);
+                                int j = 0;
+                                for(j = 0;j<spacesJsonArray.count();++j){
+                                    if(spacesJsonArray.at(j).toString()==fileItem->data(Qt::UserRole+2)){
+                                        break;
+                                    }
+                                }
+                                if(j==spacesJsonArray.count()){
+                                    elementItem->removeRow(i);
+                                }
+                                else{
+                                    i++;
+                                }
+                            }
+
+
+                            //step2:add viewitem that is new in json
                             for (const QJsonValue &value: spacesJsonArray) {
                                 int i = 0;
                                 for(i = 0;i<elementItem->rowCount();++i){
@@ -229,6 +248,25 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
                         }
                         //playlists
                         if(elementItem->text()=="playlists"){
+                            //step1:remove viewitem that is not in json
+                            for(int i = 0;i<elementItem->rowCount();){
+                                QStandardItem *fileItem = elementItem->child(i);
+                                int j = 0;
+                                for(j = 0;j<playlistsJsonArray.count();++j){
+                                    if(playlistsJsonArray.at(j).toString()==fileItem->data(Qt::UserRole+2)){
+                                        break;
+                                    }
+                                }
+                                if(j==playlistsJsonArray.count()){
+                                    elementItem->removeRow(i);
+                                }
+                                else{
+                                    i++;
+                                }
+                            }
+
+
+                            //step2:add viewitem that is new in json
                             for (const QJsonValue &value: playlistsJsonArray) {
                                 int i = 0;
                                 for(i = 0;i<elementItem->rowCount();++i){
@@ -585,7 +623,7 @@ void MainWindow::slotRemoveFile()
     QFileInfo removedFileInfo(removedIndex.data(Qt::UserRole+2).toString());
 
     RemoveFileDialog *removeFileDialog = new RemoveFileDialog(removedFileInfo,this);
-    connect(removeFileDialog,&QDialog::accepted,this,[=]{
+    connect(removeFileDialog,&RemoveFileDialog::removePermanently,this,[=](bool permanently){
         //find project root folder
         QModelIndex modelIndex = ui->projectTreeView->currentIndex();
         while(modelIndex.parent().model()!=nullptr){
@@ -640,6 +678,10 @@ void MainWindow::slotRemoveFile()
                 }
             }
             projectConfigFile.close();
+        }
+        //if this file is delete from disk
+        if(permanently){
+            emit closeSpaceFile(removedFileInfo);
         }
         parseProjectConfigFile(projectConfigFileInfo);
 

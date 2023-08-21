@@ -22,10 +22,10 @@ SpaceTabWidget::SpaceTabWidget(QWidget *parent)
 
         QWidget *willDeleteTab = widget(index);
 
-        if(QMessageBox::question(this,tr("Save File"),tr("Do you want save it?"))==QMessageBox::Yes){
-            qDebug()<<"OK";
-            static_cast<AbstractFile*>(willDeleteTab)->saveFile();
-        }
+//        if(QMessageBox::question(this,tr("Save File"),tr("Do you want save it?"))==QMessageBox::Yes){
+//            qDebug()<<"OK";
+//            static_cast<AbstractFile*>(willDeleteTab)->saveFile();
+//        }
 
         removeTab(index);
         willDeleteTab->deleteLater();
@@ -106,14 +106,24 @@ void SpaceTabWidget::openSpaceFile(QFileInfo fileInfo)
 
 void SpaceTabWidget::closeSpaceFile(QFileInfo fileInfo)
 {
-    for(int index = 0;index<count();){
-        if(widget(index)->whatsThis()==fileInfo.absoluteFilePath()){
-            QWidget *willDeleteTab = widget(index);
-            removeTab(index);
+//    for(int index = 0;index<count();){
+//        if(widget(index)->whatsThis()==fileInfo.absoluteFilePath()){
+//            QWidget *willDeleteTab = widget(index);
+//            removeTab(index);
+//            willDeleteTab->deleteLater();
+//            break;
+//        }
+//        else{
+//            index++;
+//        }
+//    }
+
+    for(int i = 0;i<count();++i){
+        if(widget(i)->whatsThis()==fileInfo.absoluteFilePath()){
+            QWidget *willDeleteTab = widget(i);
+            removeTab(i);
             willDeleteTab->deleteLater();
-        }
-        else{
-            index++;
+            break;
         }
     }
 

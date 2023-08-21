@@ -17,10 +17,12 @@ RemoveFileDialog::RemoveFileDialog(const QFileInfo &fileInfo,QWidget *parent) :
         if(ui->checkBox->isChecked()){
             QFile file(fileInfo.absoluteFilePath());
             file.remove();
+            emit removePermanently(true);
             this->accept();
 
         }
         else{
+            emit removePermanently(false);
             this->accept();
         }
     });

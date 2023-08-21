@@ -19,6 +19,9 @@ public:
 private:
     Ui::RemoveFileDialog *ui;
 
+signals:
+    void removePermanently(bool permanently);
+
 
 };
 
