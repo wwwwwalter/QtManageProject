@@ -69,6 +69,7 @@ private slots:
     void slotCloseProject();
     void closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFileInfo);
     void slotNewFile();
+    void slotAddExistingFile();
 
 
 
@@ -121,7 +122,7 @@ private:
 
     QAction *openFileAction;
     QAction *newFileAction;
-    QAction *addExistsFileAction;
+    QAction *addExistingFileAction;
     QAction *renameFileAction;
     QAction *removeFileAction;
 

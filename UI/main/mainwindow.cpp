@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
         QMenu projectTreeViewMenu(ui->projectTreeView);
         projectTreeViewMenu.addAction(openFileAction);
         projectTreeViewMenu.addAction(newFileAction);
-        projectTreeViewMenu.addAction(addExistsFileAction);
+        projectTreeViewMenu.addAction(addExistingFileAction);
         projectTreeViewMenu.addAction(renameFileAction);
         projectTreeViewMenu.addAction(removeFileAction);
         projectTreeViewMenu.addSeparator();
@@ -502,6 +502,18 @@ void MainWindow::slotNewFile()
 
 }
 
+void MainWindow::slotAddExistingFile()
+{
+    QStringList openFilesAbsoluteFilePath = QFileDialog::getOpenFileNames(this,"Add Existing File",QDir::homePath(),"space (*.space);;playlist (*.playlist)");
+    qDebug()<<openFilesAbsoluteFilePath;
+
+    for(QString absoluteFilePath : openFilesAbsoluteFilePath){
+        QFileInfo newFileInfo(absoluteFilePath);
+
+    }
+
+}
+
 
 
 
@@ -571,7 +583,7 @@ void MainWindow::setupUi()
     newFileAction->setShortcut(QKeySequence("Ctrl+Shift+N"));
 
     // add exsist file QAction
-    addExistsFileAction = new QAction(tr("Add Exists File"),this);
+    addExistingFileAction = new QAction(tr("Add Existing File..."),this);
 
     // rename file QAction
     renameFileAction = new QAction(tr("Rename File"),this);
@@ -638,7 +650,7 @@ void MainWindow::setupUi()
     fileMenu = menuBar()->addMenu(tr("File"));
     fileMenu->addAction(newFileAction);
     fileMenu->addAction(openFileAction);
-    fileMenu->addAction(addExistsFileAction);
+    fileMenu->addAction(addExistingFileAction);
     fileMenu->addAction(renameFileAction);
     fileMenu->addSeparator();
     fileMenu->addAction(saveFileAction);
@@ -682,6 +694,7 @@ void MainWindow::setupUi()
     connect(openProjectAction, &QAction::triggered, this, &MainWindow::slotOpenProject);
     connect(closeProjectAction,&QAction::triggered,this,&MainWindow::slotCloseProject);
     connect(newFileAction, &QAction::triggered, this, &MainWindow::slotNewFile);
+    connect(addExistingFileAction,&QAction::triggered,this,&MainWindow::slotAddExistingFile);
 
 
 //    connect(saveProjectAction, &QAction::triggered, this, &MainWindow::slotSaveProject);
