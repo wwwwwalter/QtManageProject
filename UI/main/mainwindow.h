@@ -63,6 +63,7 @@ private:
 
     //第一等级函数
 private slots:
+    void slotAutoHideDockTitleBar(bool checked);
     void slotNewProject();
     void slotOpenProject();
     void slotCloseProject();
@@ -104,6 +105,8 @@ private:
     QMenu *projectMenu;
     QMenu *viewMenu;
 
+    QAction *autoHideDockTitleBar;
+
 
 
     QAction *saveProjectAction;
@@ -118,13 +121,15 @@ private:
 
     QAction *openFileAction;
     QAction *newFileAction;
+    QAction *addExistsFileAction;
+    QAction *renameFileAction;
+    QAction *removeFileAction;
 
 
 
 
     QAction *saveFileAction;
     QAction *saveAsFileAction;
-    QAction *renameFileAction;
     QAction *deleteFileAction;
     QAction *addFileToProjectAction;
     QAction *removeFileFromProjectAction;

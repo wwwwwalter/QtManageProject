@@ -15,6 +15,7 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QTabWidget>
+#include <QCheckBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -61,10 +62,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 
         QMenu projectTreeViewMenu(ui->projectTreeView);
-        projectTreeViewMenu.addAction(activeProjectAction);
         projectTreeViewMenu.addAction(openFileAction);
         projectTreeViewMenu.addAction(newFileAction);
-        projectTreeViewMenu.addAction(deleteFileAction);
+        projectTreeViewMenu.addAction(addExistsFileAction);
+        projectTreeViewMenu.addAction(renameFileAction);
+        projectTreeViewMenu.addAction(removeFileAction);
+        projectTreeViewMenu.addSeparator();
         projectTreeViewMenu.addAction(closeProjectAction);
         projectTreeViewMenu.exec(QCursor::pos());
     });
@@ -513,14 +516,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupUi()
 {
-    // 创建新项目的 QAction
+
+    // auto hide dock titlebar QAction
+    autoHideDockTitleBar = new QAction(tr("Automatically Hide View Title Bars"));
+    autoHideDockTitleBar->setCheckable(true);
+
+
+    // create new project QAction
     newProjectAction = new QAction(tr("New Project"), this);
     newProjectAction->setShortcut(QKeySequence("Ctrl+N"));
 
 
-    // 创建新文件的 QAction
-    newFileAction = new QAction(tr("New File"), this);
-    newFileAction->setShortcut(QKeySequence("Ctrl+Shift+N"));
+
 
 
     // 创建保存项目的 QAction
@@ -555,12 +562,27 @@ void MainWindow::setupUi()
 
 
 
-    // 创建打开文件的 QAction
+    // open file QAction
     openFileAction = new QAction(tr("Open File"), this);
     openFileAction->setShortcut(QKeySequence("Ctrl+O"));
 
+    // create new file QAction
+    newFileAction = new QAction(tr("New File"), this);
+    newFileAction->setShortcut(QKeySequence("Ctrl+Shift+N"));
 
-    // 创建保存文件的 QAction
+    // add exsist file QAction
+    addExistsFileAction = new QAction(tr("Add Exists File"),this);
+
+    // rename file QAction
+    renameFileAction = new QAction(tr("Rename File"),this);
+
+
+    // remove file QAction
+    removeFileAction = new QAction(tr("Remove File"),this);
+
+
+
+    // save file QAction
     saveFileAction = new QAction(tr("Save File"), this);
     saveFileAction->setShortcut(QKeySequence("Ctrl+S"));
 
@@ -616,38 +638,36 @@ void MainWindow::setupUi()
     fileMenu = menuBar()->addMenu(tr("File"));
     fileMenu->addAction(newFileAction);
     fileMenu->addAction(openFileAction);
-    fileMenu->addAction(saveFileAction);
-    fileMenu->addAction(saveAsFileAction);
+    fileMenu->addAction(addExistsFileAction);
     fileMenu->addAction(renameFileAction);
     fileMenu->addSeparator();
-    fileMenu->addAction(addFileToProjectAction);
-    fileMenu->addAction(removeFileFromProjectAction);
-    fileMenu->addAction(viewProjectFilesAction);
+    fileMenu->addAction(saveFileAction);
+    fileMenu->addAction(saveAsFileAction);
     fileMenu->addSeparator();
-    fileMenu->addAction(sortFilesAction);
-    fileMenu->addAction(refreshProjectTreeAction);
-    fileMenu->addAction(updateProjectTreeAction);
-    fileMenu->addSeparator();
-    fileMenu->addAction(deleteFileAction);
+    fileMenu->addAction(removeFileAction);
 
     projectMenu = menuBar()->addMenu(tr("Project"));
     projectMenu->addAction(newProjectAction);
     projectMenu->addAction(openProjectAction);
-    projectMenu->addAction(saveProjectAction);
-    projectMenu->addAction(saveAsProjectAction);
     projectMenu->addAction(renameProjectAction);
     projectMenu->addSeparator();
-    projectMenu->addAction(deleteProjectAction);
+    projectMenu->addAction(saveProjectAction);
+    projectMenu->addAction(saveAsProjectAction);
+    projectMenu->addSeparator();
+    projectMenu->addAction(closeProjectAction);
 
 
 
 
     viewMenu = menuBar()->addMenu(tr("View"));
-    viewMenu ->addAction(ui->projectListDockWidget->toggleViewAction());
-    viewMenu ->addAction(ui->mediaListDockWidget->toggleViewAction());
-    viewMenu ->addAction(ui->videoTrackDockWidget->toggleViewAction());
-    viewMenu ->addAction(ui->audioTrackDockWidget->toggleViewAction());
-    viewMenu ->addAction(ui->propertiesDockWidget->toggleViewAction());
+    viewMenu->addAction(ui->projectListDockWidget->toggleViewAction());
+    viewMenu->addAction(ui->mediaListDockWidget->toggleViewAction());
+    viewMenu->addAction(ui->videoTrackDockWidget->toggleViewAction());
+    viewMenu->addAction(ui->audioTrackDockWidget->toggleViewAction());
+    viewMenu->addAction(ui->propertiesDockWidget->toggleViewAction());
+    viewMenu->addAction(autoHideDockTitleBar);
+
+
 
 
     ui->propertiesDockWidget->setVisible(false);
@@ -656,7 +676,7 @@ void MainWindow::setupUi()
 
 
 
-
+    connect(autoHideDockTitleBar,&QAction::toggled,this,&MainWindow::slotAutoHideDockTitleBar);
 
     connect(newProjectAction, &QAction::triggered, this, &MainWindow::slotNewProject);
     connect(openProjectAction, &QAction::triggered, this, &MainWindow::slotOpenProject);
@@ -705,6 +725,28 @@ void MainWindow::setupUi()
 
     // 初始化状态栏
     //statusBar()->showMessage("欢迎使用 Qt Creator！");
+}
+
+void MainWindow::slotAutoHideDockTitleBar(bool checked)
+{
+    if(checked){
+        QWidget *newTitleBarWidget = new QWidget;
+        ui->projectListDockWidget->setTitleBarWidget(newTitleBarWidget);
+        ui->mediaListDockWidget->setTitleBarWidget(newTitleBarWidget);
+        ui->videoTrackDockWidget->setTitleBarWidget(newTitleBarWidget);
+        ui->audioTrackDockWidget->setTitleBarWidget(newTitleBarWidget);
+        ui->propertiesDockWidget->setTitleBarWidget(newTitleBarWidget);
+        qDebug()<<newTitleBarWidget;
+    }else{
+        QWidget *titleBar = ui->projectListDockWidget->titleBarWidget();
+        ui->projectListDockWidget->setTitleBarWidget(nullptr);
+        ui->mediaListDockWidget->setTitleBarWidget(nullptr);
+        ui->videoTrackDockWidget->setTitleBarWidget(nullptr);
+        ui->audioTrackDockWidget->setTitleBarWidget(nullptr);
+        ui->propertiesDockWidget->setTitleBarWidget(nullptr);
+        titleBar->deleteLater();
+
+    }
 }
 
 
