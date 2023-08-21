@@ -504,12 +504,78 @@ void MainWindow::slotNewFile()
 
 void MainWindow::slotAddExistingFile()
 {
-    QStringList openFilesAbsoluteFilePath = QFileDialog::getOpenFileNames(this,"Add Existing File",QDir::homePath(),"space (*.space);;playlist (*.playlist)");
-    qDebug()<<openFilesAbsoluteFilePath;
+    //find project root folder
+    QModelIndex modelIndex = ui->projectTreeView->currentIndex();
+    while(modelIndex.parent().model()!=nullptr){
+        modelIndex = modelIndex.parent();
+    }
 
-    for(QString absoluteFilePath : openFilesAbsoluteFilePath){
+    //choose existing files
+    QStringList openFilesAbsoluteFilePath = QFileDialog::getOpenFileNames(this,"Add Existing File",QDir::homePath(),"space (*.space);;playlist (*.playlist)");
+    for(const QString &absoluteFilePath : openFilesAbsoluteFilePath){
         QFileInfo newFileInfo(absoluteFilePath);
 
+        //find projectConfigFile
+        QStandardItem *item = projectModel->itemFromIndex(modelIndex);
+        QFileInfo projectConfigFileInfo;
+        for(int i = 0;i<item->rowCount();++i){
+            if(item->child(i)->text().contains(".xplayer")){
+                projectConfigFileInfo.setFile(item->child(i)->data(Qt::UserRole+2).toString());
+                break;
+            }
+        }
+
+        //read json file
+        QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
+        if(projectConfigFile.open(QFile::ReadOnly)){
+            QByteArray jsonData = projectConfigFile.readAll();
+            QJsonParseError jsonError;
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData,&jsonError);
+            if(jsonError.error==QJsonParseError::NoError&&!jsonDoc.isNull()){
+                projectConfigFile.close();
+
+                //update jsonDoc and write to jsonfile
+                if(projectConfigFile.open(QFile::WriteOnly)){
+                    QJsonObject rootJsonObject = jsonDoc.object();//new
+                    if(newFileInfo.suffix()=="space"){
+                        QJsonArray spacesJsonArray = rootJsonObject.value("spaces").toArray();
+                        //check if this spacefile is already in configFile
+                        int i = 0;
+                        for(i = 0;i<spacesJsonArray.count();++i){
+                            QJsonValue value = spacesJsonArray.at(i);
+                            if(value.toString()==newFileInfo.absoluteFilePath()){
+                                qDebug()<<"break";
+                                break;
+                            }
+                        }
+                        if(i==spacesJsonArray.count()){
+                            spacesJsonArray.append(QJsonValue(newFileInfo.absoluteFilePath()));
+                            rootJsonObject["spaces"] = spacesJsonArray;
+                        }
+                    }
+                    else if(newFileInfo.suffix()=="playlist"){
+                        QJsonArray playlistsJsonArray = rootJsonObject.value("playlists").toArray();
+                        int i = 0;
+                        for(i = 0;i<playlistsJsonArray.count();++i){
+                            QJsonValue value = playlistsJsonArray.at(i);
+                            if(value.toString()==newFileInfo.absoluteFilePath()){
+                                qDebug()<<"break";
+                                break;
+                            }
+                        }
+                        if(i==playlistsJsonArray.count()){
+                            playlistsJsonArray.append(QJsonValue(newFileInfo.filePath()));
+                            rootJsonObject["playlists"]=playlistsJsonArray;
+                        }
+                    }
+                    jsonDoc.setObject(rootJsonObject);
+                    projectConfigFile.write(jsonDoc.toJson());
+                    projectConfigFile.close();
+                }
+            }
+            projectConfigFile.close();
+        }
+        parseProjectConfigFile(projectConfigFileInfo);
     }
 
 }

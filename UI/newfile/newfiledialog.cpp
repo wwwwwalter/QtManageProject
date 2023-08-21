@@ -83,7 +83,7 @@ NewFileDialog::NewFileDialog(QDir saveDir, QWidget *parent) :
         }
         else{
             if(suffix=="space"){
-                QFileInfo newFileInfo; newFileInfo = QFileInfo(savePath+QDir::separator()+fileName+".space");
+                QFileInfo newFileInfo(savePath+QDir::separator()+fileName+".space");
                 QFile newFile(newFileInfo.filePath());
                 QDir saveDir(savePath);
 
@@ -122,7 +122,7 @@ NewFileDialog::NewFileDialog(QDir saveDir, QWidget *parent) :
                 }
             }
             else if(suffix=="playlist"){
-                QFileInfo newFileInfo; newFileInfo = QFileInfo(savePath+QDir::separator()+fileName+".playlist");
+                QFileInfo newFileInfo(savePath+QDir::separator()+fileName+".playlist");
                 QFile newFile(newFileInfo.filePath());
                 QDir saveDir(savePath);
 
@@ -163,6 +163,16 @@ NewFileDialog::NewFileDialog(QDir saveDir, QWidget *parent) :
 
         }
 
+    });
+
+    connect(ui->buttonBox,&QDialogButtonBox::rejected,this,[=]{
+        this->reject();
+    });
+
+
+
+    connect(ui->fileName,&QLineEdit::textEdited,this,[=](const QString &fileName){
+        ui->tips->setText(QString("Tips: %1.%2").arg(fileName,suffix));
     });
 
 
