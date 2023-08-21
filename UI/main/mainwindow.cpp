@@ -387,8 +387,9 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
     QStandardItem *rootItem = projectModel->invisibleRootItem();
     for(int i = 0;i<rootItem->rowCount();++i){
         QStandardItem *projectFolderItem = rootItem->child(i);
-        QString projectIdentity = projectFolderItem->data(Qt::UserRole+2).toString()+QDir::separator()+projectFolderItem->text()+".xplayer";
-        if(projectIdentity == projectConfigFileInfo.absoluteFilePath()){
+        QFileInfo openedProjectConfigFileInfo(projectFolderItem->data(Qt::UserRole+2).toString()+QDir::separator()+projectFolderItem->text()+".xplayer");
+        if(openedProjectConfigFileInfo == projectConfigFileInfo){
+            qDebug()<<"opened";
             //this project is already open,parse config jsonfile to insert new space file and new playlist file to the model.
             QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
             if(projectConfigFile.open(QFile::ReadOnly)){
