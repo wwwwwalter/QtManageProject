@@ -27,26 +27,6 @@ public:
 
 
 
-private slots:
-    //    void slotNewProject();
-    //    void slotNewFile();
-    //    void slotOpenProject();
-    //    void slotSaveProject();
-    //    void slotSaveAsProject();
-    //    void slotRenameProject();
-    //    void slotDeleteProject();
-    //    void slotOpenFile();
-    //    void slotSaveFile();
-    //    void slotSaveAsFile();
-    //    void slotRenameFile();
-    //    void slotDeleteFile();
-    //    void slotAddFileToProject();
-    //    void slotRemoveFileFromProject();
-    //    void slotViewProjectFiles();
-    //    void slotSortFiles();
-    //    void slotRefreshProjectTree();
-    //    void slotUpdateProjectTree();
-
 private:
     //fileSystemModel
     QDir fileSystemRootDir;
@@ -64,13 +44,25 @@ private:
     //第一等级函数
 private slots:
     void slotAutoHideDockTitleBar(bool checked);
-    void slotNewProject();
-    void slotOpenProject();
-    void slotCloseProject();
-    void closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFileInfo);
+
+    void slotOpenFile();
     void slotNewFile();
     void slotAddExistingFile();
+    void slotSortFiles();
+    void slotRenameFile();
+    void slotSaveFile();
+    void slotSaveFileAs();
     void slotRemoveFile();
+
+    void slotNewProject();
+    void slotOpenProject();
+    void slotRenameProject();
+    void slotRefreshProject();
+    void slotSaveProject();
+    void slotCloseProject();
+    void closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFileInfo);
+
+
 
 
 
@@ -111,38 +103,38 @@ private:
 
 
 
-    QAction *saveProjectAction;
-    QAction *saveAsProjectAction;
-    QAction *renameProjectAction;
-
-    QAction *newProjectAction;
-    QAction *deleteProjectAction;
-    QAction *closeProjectAction;
-    QAction *activeProjectAction;
-    QAction *openProjectAction;
-
     QAction *openFileAction;
     QAction *newFileAction;
     QAction *addExistingFileAction;
+    QAction *sortFilesAction;
     QAction *renameFileAction;
+    QAction *saveFileAction;
+    QAction *saveFileAsAction;
     QAction *removeFileAction;
 
 
 
-
-    QAction *saveFileAction;
-    QAction *saveAsFileAction;
-    QAction *deleteFileAction;
-    QAction *addFileToProjectAction;
-    QAction *removeFileFromProjectAction;
-    QAction *viewProjectFilesAction;
-    QAction *sortFilesAction;
+    QAction *openProjectAction;
+    QAction *newProjectAction;
+    QAction *renameProjectAction;
     QAction *refreshProjectTreeAction;
-    QAction *updateProjectTreeAction;
+    QAction *saveProjectAction;
+    QAction *closeProjectAction;
+
+
+
+
+
+
+
+
+
+
+
+
     QToolBar *fileToolBar;
     QToolBar *projectToolBar;
-    QString currentProjectName;
-    QString currentFileName;
+
 
 
 

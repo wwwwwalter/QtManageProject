@@ -416,6 +416,36 @@ void MainWindow::slotOpenProject()
 
 }
 
+void MainWindow::slotRenameProject()
+{
+
+}
+
+void MainWindow::slotRefreshProject()
+{
+    //up find project root folder
+    QModelIndex modelIndex = ui->projectTreeView->currentIndex();
+    while(modelIndex.parent().model()!=nullptr){
+        modelIndex = modelIndex.parent();
+    }
+    //find projectConfigFile
+    QStandardItem *item = projectModel->itemFromIndex(modelIndex);
+    QFileInfo projectConfigFileInfo;
+    for(int i = 0;i<item->rowCount();++i){
+        if(item->child(i)->text().contains(".xplayer")){
+            projectConfigFileInfo.setFile(item->child(i)->data(Qt::UserRole+2).toString());
+            break;
+        }
+    }
+    //parse projectConfigFile
+    parseProjectConfigFile(projectConfigFileInfo);
+}
+
+void MainWindow::slotSaveProject()
+{
+
+}
+
 void MainWindow::slotCloseProject()
 {
     //up find project root folder
@@ -465,6 +495,10 @@ void MainWindow::closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFile
     }
 };
 
+void MainWindow::slotOpenFile()
+{
+
+}
 
 
 void MainWindow::slotNewFile()
@@ -617,6 +651,26 @@ void MainWindow::slotAddExistingFile()
 
 }
 
+void MainWindow::slotSortFiles()
+{
+
+}
+
+void MainWindow::slotRenameFile()
+{
+
+}
+
+void MainWindow::slotSaveFile()
+{
+
+}
+
+void MainWindow::slotSaveFileAs()
+{
+
+}
+
 void MainWindow::slotRemoveFile()
 {
     QModelIndex removedIndex = ui->projectTreeView->currentIndex();
@@ -736,43 +790,36 @@ void MainWindow::setupUi()
     autoHideDockTitleBar->setCheckable(true);
 
 
+    // open project QAction
+    openProjectAction = new QAction(tr("Open Project"), this);
+    openProjectAction->setShortcut(QKeySequence("Ctrl+O"));
+
     // create new project QAction
     newProjectAction = new QAction(tr("New Project"), this);
     newProjectAction->setShortcut(QKeySequence("Ctrl+N"));
 
+    // renameProjectAction
+    renameProjectAction = new QAction(tr("Rename Project"),this);
+
+    // refresh project QAction
+    refreshProjectTreeAction = new QAction("Refresh Project", this);
+    refreshProjectTreeAction->setShortcut(QKeySequence("Ctrl+Shift+F5"));
 
 
-
-
-    // 创建保存项目的 QAction
+    // save project QAction
     saveProjectAction = new QAction(tr("Save Project"), this);
     saveProjectAction->setShortcut(QKeySequence("Ctrl+S"));
 
 
-    // 创建保存项目为新文件的 QAction
-    saveAsProjectAction = new QAction(tr("Save Project As..."), this);
-    saveAsProjectAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 
-
-    // 创建重命名项目的 QAction
-    renameProjectAction = new QAction(tr("Rename Project"), this);
-    renameProjectAction->setShortcut(QKeySequence("Ctrl+R"));
-
-
-    // 创建删除项目的 QAction
-    deleteProjectAction = new QAction(tr("Delete Project"), this);
-    deleteProjectAction->setShortcut(QKeySequence("Ctrl+D"));
 
     // close project QAction
     closeProjectAction = new QAction(tr("Close Project"),this);
     closeProjectAction->setShortcut(QKeySequence("Ctrl+C"));
 
-    // active project QAction
-    activeProjectAction = new QAction(tr("Active Project"),this);
 
-    // open project QAction
-    openProjectAction = new QAction(tr("Open Project"), this);
-    openProjectAction->setShortcut(QKeySequence("Ctrl+O"));
+
+
 
 
 
@@ -787,63 +834,43 @@ void MainWindow::setupUi()
     // add exsist file QAction
     addExistingFileAction = new QAction(tr("Add Existing File..."),this);
 
+    // 创建文件排序的 QAction
+    sortFilesAction = new QAction("Sort Files", this);
+    sortFilesAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
+
     // rename file QAction
     renameFileAction = new QAction(tr("Rename File"),this);
 
+    // save file QAction
+    saveFileAction = new QAction(tr("Save File"), this);
+    saveFileAction->setShortcut(QKeySequence("Ctrl+S"));
+
+    // save file as QAction
+    saveFileAsAction = new QAction(tr("Save File As..."), this);
+    saveFileAsAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 
     // remove file QAction
     removeFileAction = new QAction(tr("Remove File"),this);
 
 
 
-    // save file QAction
-    saveFileAction = new QAction(tr("Save File"), this);
-    saveFileAction->setShortcut(QKeySequence("Ctrl+S"));
 
 
-    // 创建保存文件为新文件的 QAction
-    saveAsFileAction = new QAction(tr("Save File As..."), this);
-    saveAsFileAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 
 
-    // 创建重命名文件的 QAction
-    renameFileAction = new QAction(tr("Rename File"), this);
-    renameFileAction->setShortcut(QKeySequence("Ctrl+R"));
 
 
-    // 创建删除文件的 QAction
-    deleteFileAction = new QAction(tr("Delete File"), this);
-    deleteFileAction->setShortcut(QKeySequence("Ctrl+D"));
 
 
-    // 创建添加文件到项目的 QAction
-    addFileToProjectAction = new QAction(tr("Add Existing Files..."), this);
-    addFileToProjectAction->setShortcut(QKeySequence("Ctrl+A"));
 
 
-    // 创建从项目中移除文件的 QAction
-    removeFileFromProjectAction = new QAction(tr("Remove File"), this);
-    removeFileFromProjectAction->setShortcut(QKeySequence("Ctrl+R"));
 
 
-    // 创建查看项目文件的 QAction
-    viewProjectFilesAction = new QAction("查看项目文件", this);
-    viewProjectFilesAction->setShortcut(QKeySequence("Ctrl+Shift+F"));
 
 
-    // 创建文件排序的 QAction
-    sortFilesAction = new QAction("文件排序", this);
-    sortFilesAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
 
 
-    // 创建刷新项目树的 QAction
-    refreshProjectTreeAction = new QAction("刷新项目树", this);
-    refreshProjectTreeAction->setShortcut(QKeySequence("Ctrl+Shift+F5"));
 
-
-    // 创建更新项目树的 QAction
-    updateProjectTreeAction = new QAction("更新项目树", this);
-    updateProjectTreeAction->setShortcut(QKeySequence("Ctrl+Shift+U"));
 
 
 
@@ -853,10 +880,11 @@ void MainWindow::setupUi()
     fileMenu->addAction(newFileAction);
     fileMenu->addAction(openFileAction);
     fileMenu->addAction(addExistingFileAction);
+    fileMenu->addAction(sortFilesAction);
     fileMenu->addAction(renameFileAction);
     fileMenu->addSeparator();
     fileMenu->addAction(saveFileAction);
-    fileMenu->addAction(saveAsFileAction);
+    fileMenu->addAction(saveFileAsAction);
     fileMenu->addSeparator();
     fileMenu->addAction(removeFileAction);
 
@@ -864,9 +892,9 @@ void MainWindow::setupUi()
     projectMenu->addAction(newProjectAction);
     projectMenu->addAction(openProjectAction);
     projectMenu->addAction(renameProjectAction);
+    projectMenu->addAction(refreshProjectTreeAction);
     projectMenu->addSeparator();
     projectMenu->addAction(saveProjectAction);
-    projectMenu->addAction(saveAsProjectAction);
     projectMenu->addSeparator();
     projectMenu->addAction(closeProjectAction);
 
@@ -975,6 +1003,7 @@ void MainWindow::slotAutoHideDockTitleBar(bool checked)
 
     }
 }
+
 
 
 
