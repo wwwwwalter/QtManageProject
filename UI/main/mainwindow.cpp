@@ -17,6 +17,7 @@
 #include <QJsonValue>
 #include <QTabWidget>
 #include <QCheckBox>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -50,7 +51,6 @@ MainWindow::MainWindow(QWidget *parent)
 //    ui->fileSystemTreeView->setRootIndex(fileSystemModel->index(fileSystemRootDir.path()));
 //    ui->fileSystemTreeView->setColumnWidth(0, 200);
 
-
     // init project model
     projectModel = new QStandardItemModel;
     projectSelectModel = new QItemSelectionModel(projectModel);
@@ -59,22 +59,155 @@ MainWindow::MainWindow(QWidget *parent)
     ui->projectTreeView->header()->hide();
     ui->projectTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->projectTreeView,&QTreeView::customContextMenuRequested,this,[=](const QPoint &pos){
-        ui->projectTreeView->currentIndex() = ui->projectTreeView->indexAt(pos);
+        QModelIndex rightClickModelIndex = ui->projectTreeView->indexAt(pos);
+
+        // white space
+        if(rightClickModelIndex.model()==nullptr){
+            QMenu projectTreeViewMenu(ui->projectTreeView);
+            projectTreeViewMenu.addAction(newProjectAction);
+            projectTreeViewMenu.addAction(openProjectAction);
+            projectTreeViewMenu.addSeparator();
+            projectTreeViewMenu.addAction(openFileDirectory);
+            projectTreeViewMenu.exec(QCursor::pos());
+        }
+
+        // folder
+        else if(rightClickModelIndex.data(Qt::UserRole+1).toString()=="folder"){
+            QMenu projectTreeViewMenu(ui->projectTreeView);
+            projectTreeViewMenu.addAction(newFileAction);
+            projectTreeViewMenu.addAction(addExistingFileAction);
+            projectTreeViewMenu.addSeparator();
+            projectTreeViewMenu.addAction(expandAction);
+            projectTreeViewMenu.addAction(collapseAction);
+            projectTreeViewMenu.addAction(expandAllAction);
+            projectTreeViewMenu.addAction(collapseAllAction);
+            projectTreeViewMenu.addAction(refreshProjectTreeAction);
+            projectTreeViewMenu.addSeparator();
+            projectTreeViewMenu.addAction(openFileDirectory);
+            projectTreeViewMenu.addAction(closeProjectAction);
+            projectTreeViewMenu.exec(QCursor::pos());
+        }
+
+        // file
+        else if(rightClickModelIndex.data(Qt::UserRole+1).toString()=="file"){
+            // space file
+            QFileInfo fileInfo(rightClickModelIndex.data(Qt::UserRole+2).toString());
+            QString suffix = fileInfo.suffix();
+            if(suffix == "space" || suffix == "playlist"){
+                QMenu projectTreeViewMenu(ui->projectTreeView);
+                projectTreeViewMenu.addAction(openFileAction);
+                projectTreeViewMenu.addAction(newFileAction);
+                projectTreeViewMenu.addAction(addExistingFileAction);
+                projectTreeViewMenu.addSeparator();
+                projectTreeViewMenu.addAction(renameFileAction);
+                projectTreeViewMenu.addAction(saveFileAction);
+                projectTreeViewMenu.addAction(saveFileAsAction);
+                projectTreeViewMenu.addAction(removeFileAction);
+                projectTreeViewMenu.addSeparator();
+                projectTreeViewMenu.addAction(openFileDirectory);
+                projectTreeViewMenu.addAction(closeProjectAction);
+                projectTreeViewMenu.exec(QCursor::pos());
+            }
+            else if(suffix == "xplayer"){
+                QMenu projectTreeViewMenu(ui->projectTreeView);
+                projectTreeViewMenu.addAction(openFileAction);
+                projectTreeViewMenu.addAction(renameProjectAction);
+                projectTreeViewMenu.addAction(refreshProjectTreeAction);
+                projectTreeViewMenu.addAction(saveProjectAction);
+                projectTreeViewMenu.addSeparator();
+                projectTreeViewMenu.addAction(openFileDirectory);
+                projectTreeViewMenu.addAction(closeProjectAction);
+                projectTreeViewMenu.exec(QCursor::pos());
+            }
+            else{
+                return;
+            }
+        }
 
 
-        QMenu projectTreeViewMenu(ui->projectTreeView);
-        projectTreeViewMenu.addAction(openFileAction);
-        projectTreeViewMenu.addAction(newFileAction);
-        projectTreeViewMenu.addAction(addExistingFileAction);
-        projectTreeViewMenu.addAction(renameFileAction);
-        projectTreeViewMenu.addAction(removeFileAction);
-        projectTreeViewMenu.addSeparator();
-        projectTreeViewMenu.addAction(closeProjectAction);
-        projectTreeViewMenu.exec(QCursor::pos());
+
+
+
+
     });
 
 
     connect(projectSelectModel,&QItemSelectionModel::currentChanged,this,[=](const QModelIndex &current, const QModelIndex &previous){
+        if(current.model()==nullptr){
+            newFileAction->setEnabled(false);
+            openFileAction->setEnabled(true);
+            addExistingFileAction->setEnabled(false);
+            renameFileAction->setEnabled(false);
+            saveFileAction->setEnabled(false);
+            saveFileAsAction->setEnabled(false);
+            removeFileAction->setEnabled(false);
+
+            newProjectAction->setEnabled(true);
+            openProjectAction->setEnabled(true);
+            renameProjectAction->setEnabled(false);
+            refreshProjectTreeAction->setEnabled(false);
+            saveProjectAction->setEnabled(false);
+            closeProjectAction->setEnabled(false);
+
+        }
+        else{
+            if(current.data(Qt::UserRole+1).toString()=="folder"){
+                newFileAction->setEnabled(true);
+                openFileAction->setEnabled(true);
+                addExistingFileAction->setEnabled(true);
+                renameFileAction->setEnabled(false);
+                saveFileAction->setEnabled(false);
+                saveFileAsAction->setEnabled(false);
+                removeFileAction->setEnabled(false);
+
+                newProjectAction->setEnabled(true);
+                openProjectAction->setEnabled(true);
+                renameProjectAction->setEnabled(true);
+                refreshProjectTreeAction->setEnabled(true);
+                saveProjectAction->setEnabled(true);
+                closeProjectAction->setEnabled(true);
+
+            }
+            else if(current.data(Qt::UserRole+1).toString()=="file"){
+                QFileInfo fileInfo(current.data(Qt::UserRole+2).toString());
+                if(fileInfo.suffix()!="xplayer"){
+                    newFileAction->setEnabled(true);
+                    openFileAction->setEnabled(true);
+                    addExistingFileAction->setEnabled(true);
+                    renameFileAction->setEnabled(true);
+                    saveFileAction->setEnabled(true);
+                    saveFileAsAction->setEnabled(true);
+                    removeFileAction->setEnabled(true);
+
+                    newProjectAction->setEnabled(true);
+                    openProjectAction->setEnabled(true);
+                    renameProjectAction->setEnabled(true);
+                    refreshProjectTreeAction->setEnabled(true);
+                    saveProjectAction->setEnabled(true);
+                    closeProjectAction->setEnabled(true);
+                }
+                else{
+                    newFileAction->setEnabled(true);
+                    openFileAction->setEnabled(true);
+                    addExistingFileAction->setEnabled(true);
+                    renameFileAction->setEnabled(false);
+                    saveFileAction->setEnabled(false);
+                    saveFileAsAction->setEnabled(false);
+                    removeFileAction->setEnabled(false);
+
+                    newProjectAction->setEnabled(true);
+                    openProjectAction->setEnabled(true);
+                    renameProjectAction->setEnabled(true);
+                    refreshProjectTreeAction->setEnabled(true);
+                    saveProjectAction->setEnabled(true);
+                    closeProjectAction->setEnabled(true);
+                }
+            }
+        }
+
+        qDebug()<<current.data(Qt::UserRole+1).toString();
+
+
 
     });
 
@@ -703,6 +836,22 @@ void MainWindow::slotCloseProject()
     if(rootItem->hasChildren()){
         ui->projectTreeView->setCurrentIndex(rootItem->child(0)->index());
     }
+    else{
+        newFileAction->setEnabled(false);
+        openFileAction->setEnabled(true);
+        addExistingFileAction->setEnabled(false);
+        renameFileAction->setEnabled(false);
+        saveFileAction->setEnabled(false);
+        saveFileAsAction->setEnabled(false);
+        removeFileAction->setEnabled(false);
+
+        newProjectAction->setEnabled(true);
+        openProjectAction->setEnabled(true);
+        renameProjectAction->setEnabled(false);
+        refreshProjectTreeAction->setEnabled(false);
+        saveProjectAction->setEnabled(false);
+        closeProjectAction->setEnabled(false);
+    }
 
 
 }
@@ -720,6 +869,28 @@ void MainWindow::closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFile
             }
         }
     }
+}
+
+void MainWindow::slotExpand()
+{
+    QModelIndex folderIndex = ui->projectTreeView->currentIndex();
+    ui->projectTreeView->expand(folderIndex);
+}
+
+void MainWindow::slotCollapse()
+{
+    QModelIndex folderIndex = ui->projectTreeView->currentIndex();
+    ui->projectTreeView->collapse(folderIndex);
+}
+
+void MainWindow::slotExpandAll()
+{
+    ui->projectTreeView->expandAll();
+}
+
+void MainWindow::slotCollapseAll()
+{
+    ui->projectTreeView->collapseAll();
 };
 
 void MainWindow::slotOpenFile()
@@ -983,21 +1154,12 @@ void MainWindow::slotRemoveFile()
     removeFileDialog->deleteLater();
 
 
+}
 
-
-//    QModelIndex deleteIndex = ui->projectTreeView->currentIndex();
-//    projectModel->removeRow(deleteIndex.row(),deleteIndex.parent());
-//    return;
-
-
-
-//    //find project root folder
-//    QModelIndex modelIndex = ui->projectTreeView->currentIndex();
-//    while(modelIndex.parent().model()!=nullptr){
-//        modelIndex = modelIndex.parent();
-//    }
-
-
+void MainWindow::slotOpenFileDirectory()
+{
+    QModelIndex modelIndex = ui->projectTreeView->currentIndex();
+    qDebug()<<QDesktopServices::openUrl(QUrl("file:///"+modelIndex.data(Qt::UserRole+2).toString(), QUrl::TolerantMode));
 
 }
 
@@ -1016,35 +1178,35 @@ MainWindow::~MainWindow()
 void MainWindow::setupUi()
 {
 
-    // auto hide dock titlebar QAction
+
     autoHideDockTitleBar = new QAction(tr("Automatically Hide View Title Bars"));
     autoHideDockTitleBar->setCheckable(true);
 
 
-    // open project QAction
+
     openProjectAction = new QAction(tr("Open Project"), this);
     openProjectAction->setShortcut(QKeySequence("Ctrl+O"));
 
-    // create new project QAction
+
     newProjectAction = new QAction(tr("New Project"), this);
     newProjectAction->setShortcut(QKeySequence("Ctrl+N"));
 
-    // renameProjectAction
+
     renameProjectAction = new QAction(tr("Rename Project"),this);
 
-    // refresh project QAction
+
     refreshProjectTreeAction = new QAction("Refresh Project", this);
     refreshProjectTreeAction->setShortcut(QKeySequence("Ctrl+Shift+F5"));
 
 
-    // save project QAction
+
     saveProjectAction = new QAction(tr("Save Project"), this);
     saveProjectAction->setShortcut(QKeySequence("Ctrl+S"));
 
 
 
 
-    // close project QAction
+
     closeProjectAction = new QAction(tr("Close Project"),this);
     closeProjectAction->setShortcut(QKeySequence("Ctrl+C"));
 
@@ -1054,37 +1216,43 @@ void MainWindow::setupUi()
 
 
 
-    // open file QAction
+
     openFileAction = new QAction(tr("Open File"), this);
     openFileAction->setShortcut(QKeySequence("Ctrl+O"));
 
-    // create new file QAction
+
     newFileAction = new QAction(tr("New File"), this);
     newFileAction->setShortcut(QKeySequence("Ctrl+Shift+N"));
 
-    // add exsist file QAction
+
     addExistingFileAction = new QAction(tr("Add Existing File..."),this);
 
-    // 创建文件排序的 QAction
+
     sortFilesAction = new QAction("Sort Files", this);
     sortFilesAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
 
-    // rename file QAction
+
     renameFileAction = new QAction(tr("Rename File"),this);
 
-    // save file QAction
+
     saveFileAction = new QAction(tr("Save File"), this);
     saveFileAction->setShortcut(QKeySequence("Ctrl+S"));
 
-    // save file as QAction
+
     saveFileAsAction = new QAction(tr("Save File As..."), this);
     saveFileAsAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 
-    // remove file QAction
+
+    openFileDirectory = new QAction(tr("Show in Explorer"),this);
     removeFileAction = new QAction(tr("Remove File"),this);
 
 
 
+
+    expandAction = new QAction(tr("Expand"),this);
+    collapseAction = new QAction(tr("Collapse"),this);
+    expandAllAction = new QAction(tr("Expand All"),this);
+    collapseAllAction = new QAction(tr("Collapse All"),this);
 
 
 
@@ -1111,7 +1279,6 @@ void MainWindow::setupUi()
     fileMenu->addAction(newFileAction);
     fileMenu->addAction(openFileAction);
     fileMenu->addAction(addExistingFileAction);
-    fileMenu->addAction(sortFilesAction);
     fileMenu->addAction(renameFileAction);
     fileMenu->addSeparator();
     fileMenu->addAction(saveFileAction);
@@ -1165,31 +1332,30 @@ void MainWindow::setupUi()
     connect(renameFileAction,&QAction::triggered,this,&MainWindow::slotRenameFile);
     connect(saveFileAction,&QAction::triggered,this,&MainWindow::slotSaveFile);
     connect(saveFileAsAction,&QAction::triggered,this,&MainWindow::slotSaveFileAs);
+    connect(openFileDirectory,&QAction::triggered,this,&MainWindow::slotOpenFileDirectory);
     connect(removeFileAction,&QAction::triggered,this,&MainWindow::slotRemoveFile);
 
+    connect(expandAction,&QAction::triggered,this,&MainWindow::slotExpand);
+    connect(collapseAction,&QAction::triggered,this,&MainWindow::slotCollapse);
+    connect(expandAllAction,&QAction::triggered,this,&MainWindow::slotExpandAll);
+    connect(collapseAllAction,&QAction::triggered,this,&MainWindow::slotCollapseAll);
 
 
-//    // 初始化工具栏
-//    projectToolBar = addToolBar("项目");
-//    projectToolBar->addAction(newProjectAction);
-//    projectToolBar->addAction(newFileAction);
-//    projectToolBar->addAction(openProjectAction);
-//    projectToolBar->addAction(saveProjectAction);
-//    projectToolBar->addAction(saveAsProjectAction);
-//    projectToolBar->addAction(renameProjectAction);
-//    projectToolBar->addAction(deleteProjectAction);
-//    fileToolBar = addToolBar("文件");
-//    fileToolBar->addAction(openFileAction);
-//    fileToolBar->addAction(saveFileAction);
-//    fileToolBar->addAction(saveAsFileAction);
-//    fileToolBar->addAction(renameFileAction);
-//    fileToolBar->addAction(deleteFileAction);
-//    fileToolBar->addAction(addFileToProjectAction);
-//    fileToolBar->addAction(removeFileFromProjectAction);
-//    fileToolBar->addAction(viewProjectFilesAction);
-//    fileToolBar->addAction(sortFilesAction);
-//    fileToolBar->addAction(refreshProjectTreeAction);
-//    fileToolBar->addAction(updateProjectTreeAction);
+
+    newFileAction->setEnabled(false);
+    openFileAction->setEnabled(true);
+    addExistingFileAction->setEnabled(false);
+    renameFileAction->setEnabled(false);
+    saveFileAction->setEnabled(false);
+    saveFileAsAction->setEnabled(false);
+    removeFileAction->setEnabled(false);
+
+    newProjectAction->setEnabled(true);
+    openProjectAction->setEnabled(true);
+    renameProjectAction->setEnabled(false);
+    refreshProjectTreeAction->setEnabled(false);
+    saveProjectAction->setEnabled(false);
+    closeProjectAction->setEnabled(false);
 }
 
 void MainWindow::slotAutoHideDockTitleBar(bool checked)

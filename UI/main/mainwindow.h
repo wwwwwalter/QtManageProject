@@ -53,6 +53,7 @@ private slots:
     void slotSaveFile();
     void slotSaveFileAs();
     void slotRemoveFile();
+    void slotOpenFileDirectory();
 
     void slotNewProject();
     void slotOpenProject();
@@ -61,6 +62,11 @@ private slots:
     void slotSaveProject();
     void slotCloseProject();
     void closeProjectByProjectConfigFileInfo(QFileInfo projectConfigFileInfo);
+
+    void slotExpand();
+    void slotCollapse();
+    void slotExpandAll();
+    void slotCollapseAll();
 
 
 
@@ -111,6 +117,7 @@ private:
     QAction *saveFileAction;
     QAction *saveFileAsAction;
     QAction *removeFileAction;
+    QAction *openFileDirectory;
 
 
 
@@ -120,6 +127,13 @@ private:
     QAction *refreshProjectTreeAction;
     QAction *saveProjectAction;
     QAction *closeProjectAction;
+
+    QAction *expandAction;
+    QAction *collapseAction;
+    QAction *expandAllAction;
+    QAction *collapseAllAction;
+
+
 
 
 
