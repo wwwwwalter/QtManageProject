@@ -30,6 +30,8 @@ SpaceTabWidget::SpaceTabWidget(QWidget *parent)
         removeTab(index);
         willDeleteTab->deleteLater();
 
+        emit hasCloseTab(QFileInfo(willDeleteTab->whatsThis()));
+
         if(count()==0){
             emit noTab();
         }

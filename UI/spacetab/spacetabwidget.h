@@ -29,6 +29,7 @@ signals:
     void hasTab();
     void noTab();
     void clickedTabBar(QFileInfo fileInfo);
+    void hasCloseTab(QFileInfo fileInfo);
 
 
 

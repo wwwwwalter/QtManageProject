@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
+
     connect(ui->spaceTabPage,&SpaceTabWidget::hasTab,this,[=]{
         ui->stackedWidget->setCurrentWidget(ui->spaceTabPage);
     });
@@ -135,6 +136,11 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     });
 
+
+    connect(ui->spaceTabPage,&SpaceTabWidget::hasCloseTab,this,[=](QFileInfo fileInfo){
+
+    });
+
     connect(this,&MainWindow::openSpaceFile,ui->spaceTabPage,&SpaceTabWidget::openSpaceFile);
     connect(this,&MainWindow::closeSpaceFile,ui->spaceTabPage,&SpaceTabWidget::closeSpaceFile);
 
@@ -147,6 +153,201 @@ MainWindow::MainWindow(QWidget *parent)
             QStandardItem *spaceFileItem = projectModel->itemFromIndex(index);
             spaceFileItem->setData("open",Qt::UserRole+3);
             emit openSpaceFile(spaceFileInfo);
+        }
+    });
+
+
+    // rename item data
+    connect(projectModel,&QStandardItemModel::itemChanged,this,[=](QStandardItem *item){
+        static int count = 0;
+        qDebug()<<count++;
+        // if item is floder
+        if(item->data(Qt::UserRole+1).toString()=="folder"){
+            return;
+        }
+
+
+        QFileInfo shortFileInfo(item->text());
+        QFileInfo fileInfo(item->data(Qt::UserRole+2).toString());
+
+        // if item text data not change
+        if(item->text()==QFileInfo(item->data(Qt::UserRole+2).toString()).fileName()){
+            qDebug()<<"not change:"<<item->data(Qt::UserRole+2).toString();
+            return;
+        }
+
+        // if item suffix is illegal
+        if(shortFileInfo.suffix()!="xplayer"&&shortFileInfo.suffix()!="space"&&shortFileInfo.suffix()!="playlist"){
+            item->setText(fileInfo.fileName());
+            QMessageBox::warning(this,tr("Suffix illegal"),tr("Suffix is illegal,This change does not take effect!"));
+            return;
+        }
+
+
+
+        QString suffix = fileInfo.suffix();
+        if(suffix=="space"){
+            // rename real file name
+            QFile file(fileInfo.absoluteFilePath());
+            QFileInfo newFileInfo(fileInfo.absolutePath()+QDir::separator()+item->text());
+            qDebug()<<"newfile:"<<newFileInfo.absoluteFilePath();
+            if(file.rename(newFileInfo.absoluteFilePath())==false){
+                //if this foler already has the same name file
+                QMessageBox::warning(this,tr("Same name"),tr("This foler already has the same name file"));
+                item->setText(fileInfo.fileName());
+                return;
+            }
+
+
+            // update config file content
+            // up find project root folder
+            QModelIndex modelIndex = projectModel->indexFromItem(item);
+            while(modelIndex.parent().model()!=nullptr){
+                modelIndex = modelIndex.parent();
+            }
+            //find projectConfigFile
+            QStandardItem *projectItem = projectModel->itemFromIndex(modelIndex);
+            QFileInfo projectConfigFileInfo;
+            for(int i = 0;i<projectItem->rowCount();++i){
+                if(projectItem->child(i)->text().contains(".xplayer")){
+                    projectConfigFileInfo.setFile(projectItem->child(i)->data(Qt::UserRole+2).toString());
+                    break;
+                }
+            }
+
+
+            //read project json file
+            QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
+            if(projectConfigFile.open(QFile::ReadOnly)){
+                QByteArray jsonData = projectConfigFile.readAll();
+                QJsonParseError jsonError;
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData,&jsonError);
+                if(jsonError.error==QJsonParseError::NoError&&!jsonDoc.isNull()){
+                    projectConfigFile.close();
+                    //update jsonDoc and write to jsonfile
+                    if(projectConfigFile.open(QFile::WriteOnly)){
+                        QJsonObject rootJsonObject = jsonDoc.object();//new
+                        QJsonArray spacesJsonArray = rootJsonObject.value("spaces").toArray();
+                        // use new replace old
+                        for(int i = 0;i<spacesJsonArray.count();++i){
+                            qDebug()<<spacesJsonArray.at(i).toString();
+                            qDebug()<<fileInfo.absoluteFilePath();
+                            if(spacesJsonArray.at(i).toString()==fileInfo.absoluteFilePath()){
+                                QJsonValue value(newFileInfo.absoluteFilePath());
+                                spacesJsonArray.replace(i,value);
+                                rootJsonObject["spaces"] = spacesJsonArray;
+                                break;
+                            }
+                        }
+
+
+
+                        jsonDoc.setObject(rootJsonObject);
+                        projectConfigFile.write(jsonDoc.toJson());
+                        projectConfigFile.close();
+                    }
+                }
+                projectConfigFile.close();
+            }
+
+            // update item data
+            item->setData(newFileInfo.absoluteFilePath(),Qt::UserRole+2);
+            item->setToolTip(newFileInfo.absoluteFilePath());
+        }
+        else if(suffix == "playlist"){
+            // rename real file name
+            QFile file(fileInfo.absoluteFilePath());
+            QFileInfo newFileInfo(fileInfo.absolutePath()+QDir::separator()+item->text());
+            if(file.rename(newFileInfo.absoluteFilePath())==false){
+                //if this foler already has the same name file
+                QMessageBox::warning(this,tr("Same name"),tr("This foler already has the same name file"));
+                item->setText(fileInfo.fileName());
+                return;
+            }
+            // update item data
+            item->setData(newFileInfo.absoluteFilePath(),Qt::UserRole+2);
+            item->setToolTip(newFileInfo.absoluteFilePath());
+
+            // update config file content
+            // up find project root folder
+            QModelIndex modelIndex = projectModel->indexFromItem(item);
+            while(modelIndex.parent().model()!=nullptr){
+                modelIndex = modelIndex.parent();
+            }
+            //find projectConfigFile
+            QStandardItem *projectItem = projectModel->itemFromIndex(modelIndex);
+            QFileInfo projectConfigFileInfo;
+            for(int i = 0;i<projectItem->rowCount();++i){
+                if(projectItem->child(i)->text().contains(".xplayer")){
+                    projectConfigFileInfo.setFile(projectItem->child(i)->data(Qt::UserRole+2).toString());
+                    break;
+                }
+            }
+
+            //read project json file
+            QFile projectConfigFile(projectConfigFileInfo.absoluteFilePath());
+            if(projectConfigFile.open(QFile::ReadOnly)){
+                QByteArray jsonData = projectConfigFile.readAll();
+                QJsonParseError jsonError;
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData,&jsonError);
+                if(jsonError.error==QJsonParseError::NoError&&!jsonDoc.isNull()){
+                    projectConfigFile.close();
+
+                    //update jsonDoc and write to jsonfile
+                    if(projectConfigFile.open(QFile::WriteOnly)){
+                        QJsonObject rootJsonObject = jsonDoc.object();//new
+
+                        QJsonArray playlistsJsonArray = rootJsonObject.value("playlists").toArray();
+                        // use new replace old
+                        for(int i = 0;i<playlistsJsonArray.count();++i){
+                            if(playlistsJsonArray.at(i).toString()==fileInfo.absoluteFilePath()){
+                                QJsonValue value(newFileInfo.absoluteFilePath());
+                                playlistsJsonArray.replace(i,value);
+                                rootJsonObject["playlists"] = playlistsJsonArray;
+                                break;
+                            }
+                        }
+
+
+
+                        jsonDoc.setObject(rootJsonObject);
+                        projectConfigFile.write(jsonDoc.toJson());
+                        projectConfigFile.close();
+                    }
+                }
+                projectConfigFile.close();
+            }
+
+            // update item data
+            item->setData(newFileInfo.absoluteFilePath(),Qt::UserRole+2);
+            item->setToolTip(newFileInfo.absoluteFilePath());
+        }
+        else if(suffix == "xplayer"){
+            // rename real file name
+            QFile file(fileInfo.absoluteFilePath());
+            QFileInfo newFileInfo(fileInfo.absolutePath()+QDir::separator()+item->text());
+            if(file.rename(newFileInfo.absoluteFilePath())==false){
+                //if this foler already has the same name file
+                QMessageBox::warning(this,tr("Same name"),"This foler already has the same name file");
+                item->setText(fileInfo.fileName());
+
+                return;
+            }
+            // update configFile item data
+            item->setData(newFileInfo.absoluteFilePath(),Qt::UserRole+2);
+            item->setToolTip(newFileInfo.absoluteFilePath());
+
+            //up project folder item text
+            QStandardItem *projectItem = item->parent();
+            projectItem->setText(newFileInfo.baseName());
+
+
+        }
+
+        //if this file is opened,close it
+        if(item->data(Qt::UserRole+3).toString()=="open"){
+            emit closeSpaceFile(fileInfo);
+            item->setData("close",Qt::UserRole+3);
         }
     });
 }
@@ -293,6 +494,7 @@ void MainWindow::parseProjectConfigFile(QFileInfo projectConfigFileInfo)
             }
 
             ui->projectTreeView->expand(projectFolderItem->index());
+            ui->projectTreeView->setCurrentIndex(projectFolderItem->index());
             return;
         }
     }
@@ -418,6 +620,22 @@ void MainWindow::slotOpenProject()
 
 void MainWindow::slotRenameProject()
 {
+    //up find project root folder
+    QModelIndex modelIndex = ui->projectTreeView->currentIndex();
+    while(modelIndex.parent().model()!=nullptr){
+        modelIndex = modelIndex.parent();
+    }
+    //find projectConfigFile
+    QStandardItem *item = projectModel->itemFromIndex(modelIndex);
+
+    for(int i = 0;i<item->rowCount();++i){
+        if(item->child(i)->text().contains(".xplayer")){
+            QStandardItem *projectConfigFileItem = projectConfigFileItem = item->child(i);
+            ui->projectTreeView->edit(projectConfigFileItem->index());
+            break;
+        }
+    }
+
 
 }
 
@@ -443,7 +661,7 @@ void MainWindow::slotRefreshProject()
 
 void MainWindow::slotSaveProject()
 {
-
+    qDebug()<<ui->projectTreeView->currentIndex().data();
 }
 
 void MainWindow::slotCloseProject()
@@ -477,6 +695,14 @@ void MainWindow::slotCloseProject()
 
     //remove project view from projectTreeView
     projectModel->removeRow(modelIndex.row());
+
+
+    // reset currentIndex to pre-project
+    QStandardItem *rootItem = projectModel->invisibleRootItem();
+    if(rootItem->hasChildren()){
+        ui->projectTreeView->setCurrentIndex(rootItem->child(0)->index());
+    }
+
 
 }
 
@@ -658,6 +884,10 @@ void MainWindow::slotSortFiles()
 
 void MainWindow::slotRenameFile()
 {
+    // into edit
+    QModelIndex fileIndex = ui->projectTreeView->currentIndex();
+    ui->projectTreeView->edit(fileIndex);
+
 
 }
 
@@ -922,28 +1152,21 @@ void MainWindow::setupUi()
 
     connect(newProjectAction, &QAction::triggered, this, &MainWindow::slotNewProject);
     connect(openProjectAction, &QAction::triggered, this, &MainWindow::slotOpenProject);
+    connect(renameProjectAction,&QAction::triggered,this,&MainWindow::slotRenameProject);
+    connect(refreshProjectTreeAction,&QAction::triggered,this,&MainWindow::slotRefreshProject);
+    connect(saveProjectAction,&QAction::triggered,this,&MainWindow::slotSaveProject);
     connect(closeProjectAction,&QAction::triggered,this,&MainWindow::slotCloseProject);
+
+    connect(openFileAction,&QAction::triggered,this,&MainWindow::slotOpenFile);
     connect(newFileAction, &QAction::triggered, this, &MainWindow::slotNewFile);
     connect(addExistingFileAction,&QAction::triggered,this,&MainWindow::slotAddExistingFile);
+    connect(sortFilesAction,&QAction::triggered,this,&MainWindow::slotSortFiles);
+    connect(renameFileAction,&QAction::triggered,this,&MainWindow::slotRenameFile);
+    connect(saveFileAction,&QAction::triggered,this,&MainWindow::slotSaveFile);
+    connect(saveFileAsAction,&QAction::triggered,this,&MainWindow::slotSaveFileAs);
     connect(removeFileAction,&QAction::triggered,this,&MainWindow::slotRemoveFile);
 
 
-//    connect(saveProjectAction, &QAction::triggered, this, &MainWindow::slotSaveProject);
-//    connect(saveAsProjectAction, &QAction::triggered, this, &MainWindow::slotSaveAsProject);
-//    connect(renameProjectAction, &QAction::triggered, this, &MainWindow::slotRenameProject);
-
-
-//    connect(openFileAction, &QAction::triggered, this, &MainWindow::slotOpenFile);
-//    connect(saveFileAction, &QAction::triggered, this, &MainWindow::slotSaveFile);
-//    connect(saveAsFileAction, &QAction::triggered, this, &MainWindow::slotSaveAsFile);
-//    connect(renameFileAction, &QAction::triggered, this, &MainWindow::slotRenameFile);
-//    connect(addFileToProjectAction, &QAction::triggered, this, &MainWindow::slotAddFileToProject);
-//    connect(removeFileFromProjectAction, &QAction::triggered, this, &MainWindow::slotRemoveFileFromProject);
-//    connect(viewProjectFilesAction, &QAction::triggered, this, &MainWindow::slotViewProjectFiles);
-//    connect(sortFilesAction, &QAction::triggered, this, &MainWindow::slotSortFiles);
-//    connect(refreshProjectTreeAction, &QAction::triggered, this, &MainWindow::slotRefreshProjectTree);
-//    connect(updateProjectTreeAction, &QAction::triggered, this, &MainWindow::slotUpdateProjectTree);
-//    connect(deleteFileAction, &QAction::triggered, this, &MainWindow::slotDeleteFile);
 
 //    // 初始化工具栏
 //    projectToolBar = addToolBar("项目");
@@ -966,9 +1189,6 @@ void MainWindow::setupUi()
 //    fileToolBar->addAction(sortFilesAction);
 //    fileToolBar->addAction(refreshProjectTreeAction);
 //    fileToolBar->addAction(updateProjectTreeAction);
-
-    // 初始化状态栏
-    //statusBar()->showMessage("欢迎使用 Qt Creator！");
 }
 
 void MainWindow::slotAutoHideDockTitleBar(bool checked)
