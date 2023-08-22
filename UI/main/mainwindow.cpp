@@ -946,21 +946,32 @@ void MainWindow::setupUi()
 void MainWindow::slotAutoHideDockTitleBar(bool checked)
 {
     if(checked){
-        QWidget *newTitleBarWidget = new QWidget;
-        ui->projectListDockWidget->setTitleBarWidget(newTitleBarWidget);
-        ui->mediaListDockWidget->setTitleBarWidget(newTitleBarWidget);
-        ui->videoTrackDockWidget->setTitleBarWidget(newTitleBarWidget);
-        ui->audioTrackDockWidget->setTitleBarWidget(newTitleBarWidget);
-        ui->propertiesDockWidget->setTitleBarWidget(newTitleBarWidget);
-        qDebug()<<newTitleBarWidget;
+        QWidget *newProjectListDockWidgetTitleBar = new QWidget;
+        QWidget *newMediaListDockWidgetTitleBar = new QWidget;
+        QWidget *newVideoTrackDockWidgetTitleBar = new QWidget;
+        QWidget *newAudioTrackDockWidgetTitileBar = new QWidget;
+        QWidget *newPropertiesDockWidgetTitleBar = new QWidget;
+        ui->projectListDockWidget->setTitleBarWidget(newProjectListDockWidgetTitleBar);
+        ui->mediaListDockWidget->setTitleBarWidget(newMediaListDockWidgetTitleBar);
+        ui->videoTrackDockWidget->setTitleBarWidget(newVideoTrackDockWidgetTitleBar);
+        ui->audioTrackDockWidget->setTitleBarWidget(newAudioTrackDockWidgetTitileBar);
+        ui->propertiesDockWidget->setTitleBarWidget(newPropertiesDockWidgetTitleBar);
     }else{
-        QWidget *titleBar = ui->projectListDockWidget->titleBarWidget();
+        QWidget *tempProjectListDockWidgetTitleBar = ui->projectListDockWidget->titleBarWidget();
+        QWidget *tempMediaListDockWidgetTitleBar = ui->mediaListDockWidget->titleBarWidget();
+        QWidget *tempVideoTrackDockWidgetTitleBar = ui->videoTrackDockWidget->titleBarWidget();
+        QWidget *tempAudioTrackDockWidgetTitleBar = ui->audioTrackDockWidget->titleBarWidget();
+        QWidget *tempPropertiesDockWidgetTitleBar = ui->propertiesDockWidget->titleBarWidget();
         ui->projectListDockWidget->setTitleBarWidget(nullptr);
         ui->mediaListDockWidget->setTitleBarWidget(nullptr);
         ui->videoTrackDockWidget->setTitleBarWidget(nullptr);
         ui->audioTrackDockWidget->setTitleBarWidget(nullptr);
         ui->propertiesDockWidget->setTitleBarWidget(nullptr);
-        titleBar->deleteLater();
+        tempProjectListDockWidgetTitleBar->deleteLater();
+        tempMediaListDockWidgetTitleBar->deleteLater();
+        tempVideoTrackDockWidgetTitleBar->deleteLater();
+        tempAudioTrackDockWidgetTitleBar->deleteLater();
+        tempPropertiesDockWidgetTitleBar->deleteLater();
 
     }
 }
