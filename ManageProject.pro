@@ -1,4 +1,5 @@
 QT       += core gui
+QT       += multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,6 +20,7 @@ SOURCES += \
     UI/removefile/removefiledialog.cpp \
     UI/spacetab/abstractfile.cpp \
     UI/spacetab/audiospace.cpp \
+    UI/spacetab/emptywidget.cpp \
     UI/spacetab/playlistfile.cpp \
     UI/spacetab/spacefile.cpp \
     UI/spacetab/spacetabwidget.cpp \
@@ -38,6 +40,7 @@ HEADERS += \
     UI/removefile/removefiledialog.h \
     UI/spacetab/abstractfile.h \
     UI/spacetab/audiospace.h \
+    UI/spacetab/emptywidget.h \
     UI/spacetab/playlistfile.h \
     UI/spacetab/spacefile.h \
     UI/spacetab/spacetabwidget.h \

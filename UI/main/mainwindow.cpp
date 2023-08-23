@@ -289,7 +289,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-
+/*
     // rename item data
     connect(projectModel,&QStandardItemModel::itemChanged,this,[=](QStandardItem *item){
         static int count = 0;
@@ -483,6 +483,8 @@ MainWindow::MainWindow(QWidget *parent)
             item->setData("close",Qt::UserRole+3);
         }
     });
+
+*/
 }
 
 

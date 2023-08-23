@@ -83,7 +83,6 @@ void SpaceTabWidget::openSpaceFile(QFileInfo fileInfo)
         addTab(textFile,QIcon(),fileInfo.fileName());
         setCurrentWidget(textFile);
         setTabToolTip(currentIndex(),fileInfo.absoluteFilePath());
-
     }
     else{
         TextFile *textFile = new TextFile(fileInfo);

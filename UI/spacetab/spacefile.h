@@ -2,6 +2,8 @@
 #define SPACEFILE_H
 
 #include <QWidget>
+#include <QAction>
+#include <QVBoxLayout>
 
 namespace Ui {
 class SpaceFile;
@@ -17,6 +19,22 @@ public:
 
 private:
     Ui::SpaceFile *ui;
+
+
+
+
+    QAction *insertGridLayoutAction;
+    QAction *insertHorizontalSplitterAction;
+    QAction *insertVerticalSplitterAction;
+
+private slots:
+    void slotInsertGridLayout();
+    void slotInsertHorizontalSplitter();
+    void slotInsertVerticalSplitter();
+
+    // QWidget interface
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *event);
 };
 
 #endif // SPACEFILE_H
