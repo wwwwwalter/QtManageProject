@@ -19,6 +19,7 @@ public:
 
 private:
     Ui::SpaceFile *ui;
+    QVBoxLayout *vboxLayout;
 
 
 

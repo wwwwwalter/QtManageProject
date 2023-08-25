@@ -18,6 +18,10 @@ SpaceFile::SpaceFile(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    vboxLayout = new QVBoxLayout;
+    vboxLayout->setContentsMargins(0,0,0,0);
+    setLayout(vboxLayout);
+
     insertGridLayoutAction = new QAction(tr("Insert GridLayout"),this);
     insertHorizontalSplitterAction = new QAction(tr("Insert Horizontal Splitter"),this);
     insertVerticalSplitterAction = new QAction(tr("Insert Vertical Splitter"),this);
@@ -48,11 +52,9 @@ void SpaceFile::slotInsertGridLayout()
 
 void SpaceFile::slotInsertHorizontalSplitter()
 {
-    QVBoxLayout *vboxLayout = new QVBoxLayout;
-    vboxLayout->setContentsMargins(0,0,0,0);
-    setLayout(vboxLayout);
     QSplitter *splitter =new QSplitter(Qt::Horizontal);
     splitter->setHandleWidth(1);
+    splitter->setContentsMargins(0,0,0,0);
     vboxLayout->addWidget(splitter);
     EmptyWidget *leftSpace = new EmptyWidget;
     EmptyWidget *rightSpace = new EmptyWidget;
@@ -64,11 +66,9 @@ void SpaceFile::slotInsertHorizontalSplitter()
 
 void SpaceFile::slotInsertVerticalSplitter()
 {
-    QVBoxLayout *vboxLayout = new QVBoxLayout;
-    vboxLayout->setContentsMargins(0,0,0,0);
-    setLayout(vboxLayout);
     QSplitter *splitter =new QSplitter(Qt::Vertical);
     splitter->setHandleWidth(1);
+    splitter->setContentsMargins(0,0,0,0);
     vboxLayout->addWidget(splitter);
     EmptyWidget *topSpace = new EmptyWidget;
     EmptyWidget *bottomSpace = new EmptyWidget;

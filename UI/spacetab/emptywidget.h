@@ -22,6 +22,7 @@ public:
     QAction *insertWidgetOnTheRightAction;
     QAction *insertWidgetOnTheTopAction;
     QAction *insertWidgetOnTheBottomAction;
+    QAction *deleteThisWidgetAction;
 
   private slots:
     void slotInsertGridLayout();
@@ -32,6 +33,7 @@ public:
     void slotInsertWidgetOnTheRight();
     void slotInsertWidgetOnTheTop();
     void slotInsertWidgetOnTheBottom();
+    void slotDeleteThisWidgetAction();
 
 
     // QWidget interface
