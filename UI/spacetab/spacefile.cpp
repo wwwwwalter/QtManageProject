@@ -1,6 +1,7 @@
-#include "emptywidget.h"
+#include "spacewidget.h"
 #include "spacefile.h"
 #include "ui_spacefile.h"
+#include "spacewidgetgriddesigndialog.h"
 
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -12,7 +13,7 @@
 
 
 
-SpaceFile::SpaceFile(QWidget *parent) :
+SpaceWidget::SpaceWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SpaceFile)
 {
@@ -26,9 +27,9 @@ SpaceFile::SpaceFile(QWidget *parent) :
     insertHorizontalSplitterAction = new QAction(tr("Insert Horizontal Splitter"),this);
     insertVerticalSplitterAction = new QAction(tr("Insert Vertical Splitter"),this);
 
-    connect(insertGridLayoutAction,&QAction::triggered,this,&SpaceFile::slotInsertGridLayout);
-    connect(insertHorizontalSplitterAction,&QAction::triggered,this,&SpaceFile::slotInsertHorizontalSplitter);
-    connect(insertVerticalSplitterAction,&QAction::triggered,this,&SpaceFile::slotInsertVerticalSplitter);
+    connect(insertGridLayoutAction,&QAction::triggered,this,&SpaceWidget::slotInsertGridLayout);
+    connect(insertHorizontalSplitterAction,&QAction::triggered,this,&SpaceWidget::slotInsertHorizontalSplitter);
+    connect(insertVerticalSplitterAction,&QAction::triggered,this,&SpaceWidget::slotInsertVerticalSplitter);
 
 
 
@@ -39,18 +40,25 @@ SpaceFile::SpaceFile(QWidget *parent) :
 
 }
 
-SpaceFile::~SpaceFile()
+SpaceWidget::~SpaceWidget()
 {
     qDebug()<<"~SpaceFile";
     delete ui;
 }
 
-void SpaceFile::slotInsertGridLayout()
+void SpaceWidget::slotInsertGridLayout()
 {
+    SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
+    connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::accepted,this,[=]{
 
+    });
+
+
+    spaceWidgetGridDesignDialog->exec();
+    spaceWidgetGridDesignDialog->deleteLater();
 }
 
-void SpaceFile::slotInsertHorizontalSplitter()
+void SpaceWidget::slotInsertHorizontalSplitter()
 {
     QSplitter *splitter =new QSplitter(Qt::Horizontal);
     splitter->setHandleWidth(1);
@@ -64,7 +72,7 @@ void SpaceFile::slotInsertHorizontalSplitter()
 
 }
 
-void SpaceFile::slotInsertVerticalSplitter()
+void SpaceWidget::slotInsertVerticalSplitter()
 {
     QSplitter *splitter =new QSplitter(Qt::Vertical);
     splitter->setHandleWidth(1);
@@ -77,7 +85,7 @@ void SpaceFile::slotInsertVerticalSplitter()
 }
 
 
-void SpaceFile::contextMenuEvent(QContextMenuEvent *event)
+void SpaceWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
     menu.addAction(insertGridLayoutAction);

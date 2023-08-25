@@ -1,5 +1,5 @@
-#ifndef EMPTYWIDGET_H
-#define EMPTYWIDGET_H
+#ifndef SPACEWIDGET_H
+#define SPACEWIDGET_H
 
 #include <QWidget>
 
@@ -41,4 +41,4 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
 };
 
-#endif // EMPTYWIDGET_H
+#endif // SPACEWIDGET_H

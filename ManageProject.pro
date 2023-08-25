@@ -20,10 +20,13 @@ SOURCES += \
     UI/removefile/removefiledialog.cpp \
     UI/spacetab/abstractfile.cpp \
     UI/spacetab/audiospace.cpp \
-    UI/spacetab/emptywidget.cpp \
+    UI/spacetab/gridtableview.cpp \
     UI/spacetab/playlistfile.cpp \
     UI/spacetab/spacefile.cpp \
+    UI/spacetab/spacemedia.cpp \
     UI/spacetab/spacetabwidget.cpp \
+    UI/spacetab/spacewidget.cpp \
+    UI/spacetab/spacewidgetgriddesigndialog.cpp \
     UI/spacetab/textfile.cpp \
     UI/spacetab/videospace.cpp \
     UI/welcome/welcomewidget.cpp \
@@ -40,10 +43,13 @@ HEADERS += \
     UI/removefile/removefiledialog.h \
     UI/spacetab/abstractfile.h \
     UI/spacetab/audiospace.h \
-    UI/spacetab/emptywidget.h \
+    UI/spacetab/gridtableview.h \
     UI/spacetab/playlistfile.h \
     UI/spacetab/spacefile.h \
+    UI/spacetab/spacemedia.h \
     UI/spacetab/spacetabwidget.h \
+    UI/spacetab/spacewidget.h \
+    UI/spacetab/spacewidgetgriddesigndialog.h \
     UI/spacetab/textfile.h \
     UI/spacetab/videospace.h \
     UI/welcome/welcomewidget.h
@@ -64,6 +70,7 @@ FORMS += \
     UI/spacetab/audiospace.ui \
     UI/spacetab/playlistfile.ui \
     UI/spacetab/spacefile.ui \
+    UI/spacetab/spacewidgetgriddesigndialog.ui \
     UI/spacetab/textfile.ui \
     UI/spacetab/videospace.ui \
     UI/welcome/welcomewidget.ui

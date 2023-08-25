@@ -9,13 +9,13 @@ namespace Ui {
 class SpaceFile;
 }
 
-class SpaceFile : public QWidget
+class SpaceWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SpaceFile(QWidget *parent = nullptr);
-    ~SpaceFile();
+    explicit SpaceWidget(QWidget *parent = nullptr);
+    ~SpaceWidget();
 
 private:
     Ui::SpaceFile *ui;

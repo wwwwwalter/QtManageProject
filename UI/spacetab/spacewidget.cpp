@@ -1,4 +1,4 @@
-#include "emptywidget.h"
+#include "spacewidget.h"
 
 #include <QContextMenuEvent>
 #include <QMenu>
