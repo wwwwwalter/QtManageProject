@@ -3,21 +3,19 @@
 
 #include <QWidget>
 
-class EmptyWidget : public QWidget
+class SpaceWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit EmptyWidget(QWidget *parent = nullptr);
+    explicit SpaceWidget(QWidget *parent = nullptr);
 
 
 
 
 
-    QAction *insertGridLayoutAction;
-    QAction *insertHorizontalSplitterAction;
-    QAction *insertVerticalSplitterAction;
+
     QAction *openFileAction;
-
+    QAction *insertGridLayoutAction;
     QAction *insertWidgetOnTheLeftAction;
     QAction *insertWidgetOnTheRightAction;
     QAction *insertWidgetOnTheTopAction;
@@ -25,10 +23,8 @@ public:
     QAction *deleteThisWidgetAction;
 
   private slots:
+    void slotOpenFile();
     void slotInsertGridLayout();
-    void slotInsertHorizontalSplitter();
-    void slotInsertVerticalSplitter();
-
     void slotInsertWidgetOnTheLeft();
     void slotInsertWidgetOnTheRight();
     void slotInsertWidgetOnTheTop();

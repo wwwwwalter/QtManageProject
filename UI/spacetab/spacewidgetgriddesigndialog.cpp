@@ -13,9 +13,7 @@ SpaceWidgetGridDesignDialog::SpaceWidgetGridDesignDialog(QWidget *parent) :
 
     connect(ui->buttonBox,&QDialogButtonBox::clicked,this,[=](QAbstractButton *button){
         if(ui->buttonBox->buttonRole(button)==QDialogButtonBox::ApplyRole){
-            int rols = ui->tableView->selectedRowNum;
-            int cols = ui->tableView->selectedColNum;
-            qDebug()<<rols<<":"<<cols;
+
 
 
 
@@ -23,7 +21,9 @@ SpaceWidgetGridDesignDialog::SpaceWidgetGridDesignDialog(QWidget *parent) :
         }
         else if(ui->buttonBox->buttonRole(button)==QDialogButtonBox::AcceptRole)
         {
-
+            int rols = ui->tableView->selectedRowNum;
+            int cols = ui->tableView->selectedColNum;
+            emit designComplete(rols,cols);
             this->accept();
         }
         else if(ui->buttonBox->buttonRole(button)==QDialogButtonBox::RejectRole){

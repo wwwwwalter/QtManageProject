@@ -25,6 +25,9 @@ private:
     QStandardItemModel *model;
     QItemSelectionModel *selectionModel;
     QItemSelectionRange *selectionRange;
+
+signals:
+    void designComplete(int rols,int cols);
 };
 
 #endif // SPACEWIDGETGRIDDESIGNDIALOG_H

@@ -64,7 +64,7 @@ void SpaceTabWidget::openSpaceFile(QFileInfo fileInfo)
     QString fileSuffix = fileInfo.suffix();
 
     if(fileSuffix=="space"){
-        SpaceWidget *spaceFile = new SpaceWidget;
+        SpaceFile *spaceFile = new SpaceFile;
         spaceFile->setWhatsThis(fileInfo.absoluteFilePath());
         addTab(spaceFile,QIcon(),fileInfo.fileName());
         setCurrentWidget(spaceFile);

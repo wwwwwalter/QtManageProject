@@ -1,4 +1,6 @@
+#include "grider.h"
 #include "spacewidget.h"
+#include "spacewidgetgriddesigndialog.h"
 
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -6,7 +8,7 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
-EmptyWidget::EmptyWidget(QWidget *parent)
+SpaceWidget::SpaceWidget(QWidget *parent)
     : QWidget{parent}
 {
     setAutoFillBackground(true);
@@ -18,61 +20,55 @@ EmptyWidget::EmptyWidget(QWidget *parent)
 
 
     openFileAction = new QAction(tr("Open File"),this);
+    insertGridLayoutAction = new QAction(tr("Insert GridLayout"),this);
     insertWidgetOnTheTopAction = new QAction(tr("Insert Widget On The Top"),this);
     insertWidgetOnTheLeftAction = new QAction(tr("Insert Widget On The Left"),this);
     insertWidgetOnTheRightAction = new QAction(tr("Insert Widget On The Right"),this);
     insertWidgetOnTheBottomAction = new QAction(tr("Insert Widget On The Bottom"),this);
     deleteThisWidgetAction = new QAction(tr("Delete This widget"),this);
 
-    connect(insertWidgetOnTheTopAction,&QAction::triggered,this,&EmptyWidget::slotInsertWidgetOnTheTop);
-    connect(insertWidgetOnTheLeftAction,&QAction::triggered,this,&EmptyWidget::slotInsertWidgetOnTheLeft);
-    connect(insertWidgetOnTheRightAction,&QAction::triggered,this,&EmptyWidget::slotInsertWidgetOnTheRight);
-    connect(insertWidgetOnTheBottomAction,&QAction::triggered,this,&EmptyWidget::slotInsertWidgetOnTheBottom);
-    connect(deleteThisWidgetAction,&QAction::triggered,this,&EmptyWidget::slotDeleteThisWidgetAction);
+    connect(openFileAction,&QAction::triggered,this,&SpaceWidget::slotOpenFile);
+    connect(insertGridLayoutAction,&QAction::triggered,this,&SpaceWidget::slotInsertGridLayout);
+    connect(insertWidgetOnTheTopAction,&QAction::triggered,this,&SpaceWidget::slotInsertWidgetOnTheTop);
+    connect(insertWidgetOnTheLeftAction,&QAction::triggered,this,&SpaceWidget::slotInsertWidgetOnTheLeft);
+    connect(insertWidgetOnTheRightAction,&QAction::triggered,this,&SpaceWidget::slotInsertWidgetOnTheRight);
+    connect(insertWidgetOnTheBottomAction,&QAction::triggered,this,&SpaceWidget::slotInsertWidgetOnTheBottom);
+    connect(deleteThisWidgetAction,&QAction::triggered,this,&SpaceWidget::slotDeleteThisWidgetAction);
 }
 
-void EmptyWidget::slotInsertGridLayout()
+void SpaceWidget::slotOpenFile()
 {
 
 }
 
-void EmptyWidget::slotInsertHorizontalSplitter()
+void SpaceWidget::slotInsertGridLayout()
 {
-    QVBoxLayout *vboxLayout = new QVBoxLayout;
-    vboxLayout->setContentsMargins(0,0,0,0);
-    setLayout(vboxLayout);
-    QSplitter *splitter =new QSplitter(Qt::Horizontal);
-    splitter->setHandleWidth(1);
-    vboxLayout->addWidget(splitter);
-    EmptyWidget *leftSpace = new EmptyWidget;
-    EmptyWidget *rightSpace = new EmptyWidget;
-    splitter->addWidget(leftSpace);
-    splitter->addWidget(rightSpace);
+    Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
+    int index = parentGrider->indexOf(this);
+    qDebug()<<index;
+
+    SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
+    connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::designComplete,this,[=](int rols,int cols){
+        Grider *grider = new Grider;
+        parentGrider->getGridLayout()->replaceWidget(this,grider);
+        grider->addWidget(this,rols,cols);
 
 
+
+    });
+
+
+    spaceWidgetGridDesignDialog->exec();
+    spaceWidgetGridDesignDialog->deleteLater();
 }
 
-void EmptyWidget::slotInsertVerticalSplitter()
-{
-    QVBoxLayout *vboxLayout = new QVBoxLayout;
-    vboxLayout->setContentsMargins(0,0,0,0);
-    setLayout(vboxLayout);
-    QSplitter *splitter =new QSplitter(Qt::Vertical);
-    splitter->setHandleWidth(1);
-    vboxLayout->addWidget(splitter);
-    EmptyWidget *topSpace = new EmptyWidget;
-    EmptyWidget *bottomSpace = new EmptyWidget;
-    splitter->addWidget(topSpace);
-    splitter->addWidget(bottomSpace);
-}
-
-void EmptyWidget::slotInsertWidgetOnTheLeft()
+void SpaceWidget::slotInsertWidgetOnTheLeft()
 {
     QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
     int index = parentSplitter->indexOf(this);
 
     if(parentSplitter->orientation()==Qt::Horizontal){
-        parentSplitter->insertWidget(index,new EmptyWidget);
+        parentSplitter->insertWidget(index,new SpaceWidget);
     }
     else{
         QSplitter *splitter = new QSplitter(Qt::Horizontal);
@@ -82,7 +78,7 @@ void EmptyWidget::slotInsertWidgetOnTheLeft()
 
 
 
-        EmptyWidget *leftWidget = new EmptyWidget;
+        SpaceWidget *leftWidget = new SpaceWidget;
         splitter->insertWidget(0, leftWidget);
         splitter->insertWidget(1,this);
     }
@@ -90,14 +86,14 @@ void EmptyWidget::slotInsertWidgetOnTheLeft()
 
 }
 
-void EmptyWidget::slotInsertWidgetOnTheRight()
+void SpaceWidget::slotInsertWidgetOnTheRight()
 {
 
     QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
     int index = parentSplitter->indexOf(this);
 
     if(parentSplitter->orientation()==Qt::Horizontal){
-        parentSplitter->insertWidget(index+1,new EmptyWidget);
+        parentSplitter->insertWidget(index+1,new SpaceWidget);
     }
     else{
         QSplitter *splitter = new QSplitter(Qt::Horizontal);
@@ -109,21 +105,21 @@ void EmptyWidget::slotInsertWidgetOnTheRight()
 
 
 
-        EmptyWidget *rightWidget = new EmptyWidget;
+        SpaceWidget *rightWidget = new SpaceWidget;
         splitter->insertWidget(0, this);
         splitter->insertWidget(1,rightWidget);
     }
 
 }
 
-void EmptyWidget::slotInsertWidgetOnTheTop()
+void SpaceWidget::slotInsertWidgetOnTheTop()
 {
     QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
     int index = parentSplitter->indexOf(this);
 
     if(parentSplitter->orientation()==Qt::Vertical){
         qDebug()<<"old";
-        parentSplitter->insertWidget(index,new EmptyWidget);
+        parentSplitter->insertWidget(index,new SpaceWidget);
     }
     else{
         qDebug()<<"new";
@@ -134,7 +130,7 @@ void EmptyWidget::slotInsertWidgetOnTheTop()
 
 
 
-        EmptyWidget *topWidget = new EmptyWidget;
+        SpaceWidget *topWidget = new SpaceWidget;
         splitter->insertWidget(0, topWidget);
         splitter->insertWidget(1,this);
     }
@@ -144,13 +140,13 @@ void EmptyWidget::slotInsertWidgetOnTheTop()
 
 }
 
-void EmptyWidget::slotInsertWidgetOnTheBottom()
+void SpaceWidget::slotInsertWidgetOnTheBottom()
 {
     QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
     int index = parentSplitter->indexOf(this);
 
     if(parentSplitter->orientation()==Qt::Vertical){
-        parentSplitter->insertWidget(index+1,new EmptyWidget);
+        parentSplitter->insertWidget(index+1,new SpaceWidget);
     }
     else{
         QSplitter *splitter = new QSplitter(Qt::Vertical);
@@ -160,7 +156,7 @@ void EmptyWidget::slotInsertWidgetOnTheBottom()
 
 
 
-        EmptyWidget *bottomWidget = new EmptyWidget;
+        SpaceWidget *bottomWidget = new SpaceWidget;
         splitter->insertWidget(0, this);
         splitter->insertWidget(1,bottomWidget);
     }
@@ -169,47 +165,67 @@ void EmptyWidget::slotInsertWidgetOnTheBottom()
 
 }
 
-void EmptyWidget::slotDeleteThisWidgetAction()
-{
-    QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
-    int thisIndex = parentSplitter->indexOf(this);
-    this->deleteLater();
+void SpaceWidget::slotDeleteThisWidgetAction() {
+    if (this->parentWidget()->inherits("QSplitter")) {
 
+        QSplitter *parentSplitter =
+            static_cast<QSplitter *>(this->parentWidget());
+        int thisIndex = parentSplitter->indexOf(this);
+        this->deleteLater();
 
-    //if this widget is the second to last,take the last one to grandParentSplitter
-    if(parentSplitter->count()==2){
-        //if parentSplitter is the lowest level splitter
-        if(!parentSplitter->parentWidget()->inherits("QSplitter")){
-            //do nothing
-            qDebug()<<"do nothing";
-        }
-        else{
-            QSplitter *grandParentSplitter = static_cast<QSplitter *>(parentSplitter->parentWidget());
+        // if this widget is the second to last,take the last one to
+        // grandParentSplitter
+        if (parentSplitter->count() == 2) {
+          // if parentSplitter is the lowest level splitter
+          if (!parentSplitter->parentWidget()->inherits("QSplitter")) {
+            // do nothing
+            qDebug() << "do nothing";
+          } else {
+            QSplitter *grandParentSplitter =
+                static_cast<QSplitter *>(parentSplitter->parentWidget());
             QWidget *lastOne = parentSplitter->widget(!thisIndex);
             int parentIndex = grandParentSplitter->indexOf(parentSplitter);
-            grandParentSplitter->replaceWidget(parentIndex,lastOne);
+            grandParentSplitter->replaceWidget(parentIndex, lastOne);
             parentSplitter->deleteLater();
-            qDebug()<<"take the last one to grandParentSplitter";
+            qDebug() << "take the last one to grandParentSplitter";
+          }
+
         }
 
+        // if this widget is the last one,delete parent splitter
+        else if (parentSplitter->count() == 1) {
+          qDebug() << "delete parent";
+          parentSplitter->deleteLater();
+        }
     }
+    else if(this->parentWidget()->inherits("Grider")){
+        qDebug()<<"Grider";
+        Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
+        int index = parentGrider->indexOf(this);
 
-    //if this widget is the last one,delete parent splitter
-    else if(parentSplitter->count()==1){
-        qDebug()<<"delete parent";
-        parentSplitter->deleteLater();
+        int rol;
+        int col;
+        int rolSpan;
+        int colSpan;
+        parentGrider->getGridLayout()->getItemPosition(index,&rol,&col,&rolSpan,&colSpan);
+        qDebug()<<rol<<col<<rolSpan<<colSpan;
+
+        QLayoutItem* localTakeAt = parentGrider->getGridLayout()->takeAt(index);
+        localTakeAt->widget()->deleteLater();
+        //delete localTakeAt;
+        qDebug()<<index;
+
+
+
+
     }
-
-
-
-
 }
 
-
-void EmptyWidget::contextMenuEvent(QContextMenuEvent *event)
+void SpaceWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
     menu.addAction(openFileAction);
+    menu.addAction(insertGridLayoutAction);
     menu.addAction(insertWidgetOnTheTopAction);
     menu.addAction(insertWidgetOnTheLeftAction);
     menu.addAction(insertWidgetOnTheRightAction);

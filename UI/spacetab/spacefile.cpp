@@ -5,15 +5,17 @@
 
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <QMouseEvent>
 #include <QObject>
 #include <QSplitter>
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QVideoWidget>
+#include "grider.h"
 
 
 
-SpaceWidget::SpaceWidget(QWidget *parent) :
+SpaceFile::SpaceFile(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SpaceFile)
 {
@@ -27,11 +29,9 @@ SpaceWidget::SpaceWidget(QWidget *parent) :
     insertHorizontalSplitterAction = new QAction(tr("Insert Horizontal Splitter"),this);
     insertVerticalSplitterAction = new QAction(tr("Insert Vertical Splitter"),this);
 
-    connect(insertGridLayoutAction,&QAction::triggered,this,&SpaceWidget::slotInsertGridLayout);
-    connect(insertHorizontalSplitterAction,&QAction::triggered,this,&SpaceWidget::slotInsertHorizontalSplitter);
-    connect(insertVerticalSplitterAction,&QAction::triggered,this,&SpaceWidget::slotInsertVerticalSplitter);
-
-
+    connect(insertGridLayoutAction,&QAction::triggered,this,&SpaceFile::slotInsertGridLayout);
+    connect(insertHorizontalSplitterAction,&QAction::triggered,this,&SpaceFile::slotInsertHorizontalSplitter);
+    connect(insertVerticalSplitterAction,&QAction::triggered,this,&SpaceFile::slotInsertVerticalSplitter);
 
 
 
@@ -40,16 +40,20 @@ SpaceWidget::SpaceWidget(QWidget *parent) :
 
 }
 
-SpaceWidget::~SpaceWidget()
+SpaceFile::~SpaceFile()
 {
     qDebug()<<"~SpaceFile";
     delete ui;
 }
 
-void SpaceWidget::slotInsertGridLayout()
+void SpaceFile::slotInsertGridLayout()
 {
     SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
-    connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::accepted,this,[=]{
+    connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::designComplete,this,[=](int rols,int cols){
+        Grider *grider = new Grider;
+        vboxLayout->addWidget(grider);
+        grider->addWidget(rols,cols);
+
 
     });
 
@@ -58,34 +62,34 @@ void SpaceWidget::slotInsertGridLayout()
     spaceWidgetGridDesignDialog->deleteLater();
 }
 
-void SpaceWidget::slotInsertHorizontalSplitter()
+void SpaceFile::slotInsertHorizontalSplitter()
 {
     QSplitter *splitter =new QSplitter(Qt::Horizontal);
     splitter->setHandleWidth(1);
     splitter->setContentsMargins(0,0,0,0);
     vboxLayout->addWidget(splitter);
-    EmptyWidget *leftSpace = new EmptyWidget;
-    EmptyWidget *rightSpace = new EmptyWidget;
+    SpaceWidget *leftSpace = new SpaceWidget;
+    SpaceWidget *rightSpace = new SpaceWidget;
     splitter->addWidget(leftSpace);
     splitter->addWidget(rightSpace);
 
 
 }
 
-void SpaceWidget::slotInsertVerticalSplitter()
+void SpaceFile::slotInsertVerticalSplitter()
 {
     QSplitter *splitter =new QSplitter(Qt::Vertical);
     splitter->setHandleWidth(1);
     splitter->setContentsMargins(0,0,0,0);
     vboxLayout->addWidget(splitter);
-    EmptyWidget *topSpace = new EmptyWidget;
-    EmptyWidget *bottomSpace = new EmptyWidget;
+    SpaceWidget *topSpace = new SpaceWidget;
+    SpaceWidget *bottomSpace = new SpaceWidget;
     splitter->addWidget(topSpace);
     splitter->addWidget(bottomSpace);
 }
 
 
-void SpaceWidget::contextMenuEvent(QContextMenuEvent *event)
+void SpaceFile::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
     menu.addAction(insertGridLayoutAction);
@@ -93,4 +97,60 @@ void SpaceWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(insertVerticalSplitterAction);
     menu.exec(QCursor::pos());
     event->accept();
+}
+
+
+void SpaceFile::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button()==Qt::LeftButton){
+        topLeft = event->pos();
+    }
+
+
+}
+
+void SpaceFile::mouseMoveEvent(QMouseEvent *event)
+{
+    bottomRight = event->pos();
+
+
+    update();
+
+}
+
+void SpaceFile::mouseReleaseEvent(QMouseEvent *event)
+{
+
+
+
+    if(event->button()==Qt::LeftButton){
+        bottomRight = event->pos();
+        SpaceWidget *spaceWidget = new SpaceWidget(this);
+        spaceWidget->setGeometry(QRect(topLeft,bottomRight));
+        spaceWidget->show();
+    }
+
+
+
+}
+
+
+
+
+void SpaceFile::paintEvent(QPaintEvent *event)
+{
+
+    if(topLeft!=bottomRight){
+        QPainter painter(this);
+        painter.setPen(Qt::red);
+        QRect rect(topLeft,bottomRight);
+        painter.drawRect(rect);
+    }
+
+
+    int static  count = 0;
+    qDebug()<<"paintEvent"<<count++;
+    event->accept();
+
+
 }
