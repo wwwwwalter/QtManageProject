@@ -1,5 +1,10 @@
 #include "grider.h"
 #include "spacewidget.h"
+#include "spacewidgetgriddesigndialog.h"
+
+#include <QCloseEvent>
+#include <QContextMenuEvent>
+#include <QMenu>
 
 Grider::Grider(QWidget *parent)
     : QWidget{parent}
@@ -15,14 +20,46 @@ Grider::Grider(QWidget *parent)
     setPalette(palette);
 
 
+    insertGridLayoutAction = new QAction(tr("Insert GridLayout"),this);
+    connect(insertGridLayoutAction,&QAction::triggered,this,&Grider::slotInsertGridLayout);
+
+}
+
+void Grider::slotInsertGridLayout()
+{
+
+
+    for(int i = 0;i<gridLayout->rowCount();++i){
+        for(int j = 0;j<gridLayout->columnCount();++j){
+            QRect rect = gridLayout->cellRect(i,j);
+            if(rect.contains(point)){
+                SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
+                connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::designComplete,this,[=](int rols,int cols){
+                    Grider *grider = new Grider;
+                    grider->addWidget(rols,cols);
+                    gridLayout->addWidget(grider,i,j);
+
+                });
+
+                spaceWidgetGridDesignDialog->exec();
+                spaceWidgetGridDesignDialog->deleteLater();
+                break;
+            }
+        }
+    }
+
+
+
+
+
+
+
 }
 
 void Grider::addWidget(int rols, int cols)
 {
     for (int i = 0; i < rols; ++i) {
-        gridLayout->setRowMinimumHeight(i,150);
         for (int j = 0; j < cols; ++j) {
-            gridLayout->setColumnMinimumWidth(j,200);
             SpaceWidget *spaceWidget = new SpaceWidget;
             gridLayout->addWidget(spaceWidget,i,j);
         }
@@ -32,9 +69,7 @@ void Grider::addWidget(int rols, int cols)
 void Grider::addWidget(QWidget *widget, int rols, int cols)
 {
     for (int i = 0; i < rols; ++i) {
-        gridLayout->setRowMinimumHeight(i,150);
         for (int j = 0; j < cols; ++j) {
-            gridLayout->setColumnMinimumWidth(j,200);
             if(i==0&&j==0){
                 gridLayout->addWidget(widget,i,j);
             }
@@ -42,7 +77,6 @@ void Grider::addWidget(QWidget *widget, int rols, int cols)
                 SpaceWidget *spaceWidget = new SpaceWidget;
                 gridLayout->addWidget(spaceWidget,i,j);
             }
-
         }
     }
 }
@@ -55,4 +89,29 @@ QGridLayout *Grider::getGridLayout()
 int Grider::indexOf(QWidget *widget)
 {
     return gridLayout->indexOf(widget);
+}
+
+
+void Grider::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu(this);
+    menu.addAction(insertGridLayoutAction);
+    menu.exec(QCursor::pos());
+}
+
+
+void Grider::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button()==Qt::RightButton){
+        point = event->pos();
+    }
+}
+
+
+void Grider::mouseReleaseEvent(QMouseEvent *event)
+{
+}
+
+void Grider::mouseMoveEvent(QMouseEvent *event)
+{
 }

@@ -22,6 +22,7 @@ SOURCES += \
     UI/spacetab/audiospace.cpp \
     UI/spacetab/grider.cpp \
     UI/spacetab/gridtableview.cpp \
+    UI/spacetab/irregularer.cpp \
     UI/spacetab/playlistfile.cpp \
     UI/spacetab/spacefile.cpp \
     UI/spacetab/spacemedia.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     UI/spacetab/audiospace.h \
     UI/spacetab/grider.h \
     UI/spacetab/gridtableview.h \
+    UI/spacetab/irregularer.h \
     UI/spacetab/playlistfile.h \
     UI/spacetab/spacefile.h \
     UI/spacetab/spacemedia.h \

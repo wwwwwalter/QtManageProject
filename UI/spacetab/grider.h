@@ -11,9 +11,16 @@ class Grider : public QWidget
 public:
     explicit Grider(QWidget *parent = nullptr);
 
+    QAction *insertGridLayoutAction;
+
+private slots:
+    void slotInsertGridLayout();
+
+
 
 private:
     QGridLayout *gridLayout;
+    QPoint point;
 
 public:
     void addWidget(int rols,int cols);
@@ -23,6 +30,13 @@ public:
 
 signals:
 
+
+    // QWidget interface
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
 };
 
 #endif // GRIDER_H

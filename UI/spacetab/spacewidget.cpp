@@ -1,9 +1,12 @@
 #include "grider.h"
+#include "irregularer.h"
 #include "spacewidget.h"
 #include "spacewidgetgriddesigndialog.h"
 
 #include <QContextMenuEvent>
+#include <QFocusEvent>
 #include <QMenu>
+#include <QPainter>
 #include <QPalette>
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -11,6 +14,7 @@
 SpaceWidget::SpaceWidget(QWidget *parent)
     : QWidget{parent}
 {
+    setFocusPolicy(Qt::ClickFocus);
     setAutoFillBackground(true);
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window,QColor(rand() % 256, rand() % 256, rand() % 256));
@@ -34,6 +38,10 @@ SpaceWidget::SpaceWidget(QWidget *parent)
     connect(insertWidgetOnTheRightAction,&QAction::triggered,this,&SpaceWidget::slotInsertWidgetOnTheRight);
     connect(insertWidgetOnTheBottomAction,&QAction::triggered,this,&SpaceWidget::slotInsertWidgetOnTheBottom);
     connect(deleteThisWidgetAction,&QAction::triggered,this,&SpaceWidget::slotDeleteThisWidgetAction);
+
+
+
+
 }
 
 void SpaceWidget::slotOpenFile()
@@ -43,93 +51,224 @@ void SpaceWidget::slotOpenFile()
 
 void SpaceWidget::slotInsertGridLayout()
 {
-    Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
-    int index = parentGrider->indexOf(this);
-    qDebug()<<index;
 
-    SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
-    connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::designComplete,this,[=](int rols,int cols){
-        Grider *grider = new Grider;
-        parentGrider->getGridLayout()->replaceWidget(this,grider);
-        grider->addWidget(this,rols,cols);
+    if(this->parentWidget()->inherits("Grider")){
+        Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
+        int index = parentGrider->indexOf(this);
 
 
+        SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
+        connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::designComplete,this,[=](int rols,int cols){
+            Grider *grider = new Grider;
+            parentGrider->getGridLayout()->replaceWidget(this,grider);
+            grider->addWidget(this,rols,cols);
 
-    });
 
 
-    spaceWidgetGridDesignDialog->exec();
-    spaceWidgetGridDesignDialog->deleteLater();
+        });
+
+
+        spaceWidgetGridDesignDialog->exec();
+        spaceWidgetGridDesignDialog->deleteLater();
+    }
+    else if(this->parentWidget()->inherits("Irregularer")){
+        Irregularer *parentIrregularer = static_cast<Irregularer*>(this->parentWidget());
+        SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
+        connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::designComplete,this,[=](int rols,int cols){
+            Grider *grider = new Grider;
+            parentIrregularer->getVBoxLayout()->replaceWidget(this,grider);
+            grider->addWidget(this,rols,cols);
+
+
+
+        });
+
+
+        spaceWidgetGridDesignDialog->exec();
+        spaceWidgetGridDesignDialog->deleteLater();
+
+    }
+    else if(this->parentWidget()->inherits("QSplitter")){
+        QSplitter *parentSplitter = static_cast<QSplitter*>(this->parentWidget());
+        int index = parentSplitter->indexOf(this);
+        SpaceWidgetGridDesignDialog *spaceWidgetGridDesignDialog = new SpaceWidgetGridDesignDialog(this);
+        connect(spaceWidgetGridDesignDialog,&SpaceWidgetGridDesignDialog::designComplete,this,[=](int rols,int cols){
+            Grider *grider = new Grider;
+            parentSplitter->replaceWidget(index,grider);
+            grider->addWidget(this,rols,cols);
+
+        });
+
+
+        spaceWidgetGridDesignDialog->exec();
+        spaceWidgetGridDesignDialog->deleteLater();
+    }
+
+
+
 }
 
 void SpaceWidget::slotInsertWidgetOnTheLeft()
 {
-    QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
-    int index = parentSplitter->indexOf(this);
+    if(this->parentWidget()->inherits("QSplitter")){
+        QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
+        int index = parentSplitter->indexOf(this);
 
-    if(parentSplitter->orientation()==Qt::Horizontal){
-        parentSplitter->insertWidget(index,new SpaceWidget);
+        if(parentSplitter->orientation()==Qt::Horizontal){
+            parentSplitter->insertWidget(index,new SpaceWidget);
+        }
+        else{
+            QSplitter *splitter = new QSplitter(Qt::Horizontal);
+            splitter->setContentsMargins(0,0,0,0);
+            splitter->setHandleWidth(1);
+            parentSplitter->replaceWidget(index,splitter);
+
+
+
+            SpaceWidget *leftWidget = new SpaceWidget;
+            splitter->insertWidget(0, leftWidget);
+            splitter->insertWidget(1,this);
+        }
     }
-    else{
+    else if(this->parentWidget()->inherits("Irregularer")){
+        Irregularer *parentIrregularer = static_cast<Irregularer*>(this->parentWidget());
+
         QSplitter *splitter = new QSplitter(Qt::Horizontal);
         splitter->setContentsMargins(0,0,0,0);
         splitter->setHandleWidth(1);
-        parentSplitter->replaceWidget(index,splitter);
 
-
+        parentIrregularer->getVBoxLayout()->replaceWidget(this,splitter);
 
         SpaceWidget *leftWidget = new SpaceWidget;
         splitter->insertWidget(0, leftWidget);
         splitter->insertWidget(1,this);
+
     }
+
+    else if(this->parentWidget()->inherits("Grider")){
+        Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
+        int index = parentGrider->indexOf(this);
+
+        QSplitter *splitter = new QSplitter(Qt::Horizontal);
+        splitter->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        splitter->setContentsMargins(0,0,0,0);
+        splitter->setHandleWidth(1);
+
+        parentGrider->getGridLayout()->replaceWidget(this,splitter);
+        SpaceWidget *leftWidget = new SpaceWidget;
+        splitter->insertWidget(0, leftWidget);
+        splitter->insertWidget(1,this);
+
+    }
+
+
 
 
 }
 
 void SpaceWidget::slotInsertWidgetOnTheRight()
 {
+    if(this->parentWidget()->inherits("QSplitter")){
+        QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
+        int index = parentSplitter->indexOf(this);
 
-    QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
-    int index = parentSplitter->indexOf(this);
+        if(parentSplitter->orientation()==Qt::Horizontal){
+            parentSplitter->insertWidget(index+1,new SpaceWidget);
+        }
+        else{
+            QSplitter *splitter = new QSplitter(Qt::Horizontal);
+            splitter->setContentsMargins(0,0,0,0);
+            splitter->setHandleWidth(1);
+            parentSplitter->replaceWidget(index,splitter);
 
-    if(parentSplitter->orientation()==Qt::Horizontal){
-        parentSplitter->insertWidget(index+1,new SpaceWidget);
+
+
+
+
+            SpaceWidget *rightWidget = new SpaceWidget;
+            splitter->insertWidget(0, this);
+            splitter->insertWidget(1,rightWidget);
+        }
     }
-    else{
+    else if(this->parentWidget()->inherits("Irregularer")){
+        Irregularer *parentIrregularer = static_cast<Irregularer*>(this->parentWidget());
+
         QSplitter *splitter = new QSplitter(Qt::Horizontal);
         splitter->setContentsMargins(0,0,0,0);
         splitter->setHandleWidth(1);
-        parentSplitter->replaceWidget(index,splitter);
 
-
-
-
+        parentIrregularer->getVBoxLayout()->replaceWidget(this,splitter);
 
         SpaceWidget *rightWidget = new SpaceWidget;
         splitter->insertWidget(0, this);
         splitter->insertWidget(1,rightWidget);
     }
+    else if(this->parentWidget()->inherits("Grider")){
+        Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
+        int index = parentGrider->indexOf(this);
+
+        QSplitter *splitter = new QSplitter(Qt::Horizontal);
+        splitter->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        splitter->setContentsMargins(0,0,0,0);
+        splitter->setHandleWidth(1);
+
+        parentGrider->getGridLayout()->replaceWidget(this,splitter);
+        SpaceWidget *rightWidget = new SpaceWidget;
+        splitter->insertWidget(0, this);
+        splitter->insertWidget(1,rightWidget);
+    }
+
+
 
 }
 
 void SpaceWidget::slotInsertWidgetOnTheTop()
 {
-    QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
-    int index = parentSplitter->indexOf(this);
+    if(this->parentWidget()->inherits("QSplitter")){
+        QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
+        int index = parentSplitter->indexOf(this);
 
-    if(parentSplitter->orientation()==Qt::Vertical){
-        qDebug()<<"old";
-        parentSplitter->insertWidget(index,new SpaceWidget);
+        if(parentSplitter->orientation()==Qt::Vertical){
+            qDebug()<<"old";
+            parentSplitter->insertWidget(index,new SpaceWidget);
+        }
+        else{
+            qDebug()<<"new";
+            QSplitter *splitter = new QSplitter(Qt::Vertical);
+            splitter->setContentsMargins(0,0,0,0);
+            splitter->setHandleWidth(1);
+            parentSplitter->replaceWidget(index,splitter);
+
+
+
+            SpaceWidget *topWidget = new SpaceWidget;
+            splitter->insertWidget(0, topWidget);
+            splitter->insertWidget(1,this);
+        }
     }
-    else{
-        qDebug()<<"new";
+    else if(this->parentWidget()->inherits("Irregularer")){
+        Irregularer *parentIrregularer = static_cast<Irregularer*>(this->parentWidget());
+
         QSplitter *splitter = new QSplitter(Qt::Vertical);
         splitter->setContentsMargins(0,0,0,0);
         splitter->setHandleWidth(1);
-        parentSplitter->replaceWidget(index,splitter);
 
+        parentIrregularer->getVBoxLayout()->replaceWidget(this,splitter);
 
+        SpaceWidget *topWidget = new SpaceWidget;
+        splitter->insertWidget(0, topWidget);
+        splitter->insertWidget(1,this);
+    }
+    else if(this->parentWidget()->inherits("Grider")){
+        Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
+        int index = parentGrider->indexOf(this);
 
+        QSplitter *splitter = new QSplitter(Qt::Vertical);
+        splitter->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        splitter->setContentsMargins(0,0,0,0);
+        splitter->setHandleWidth(1);
+
+        parentGrider->getGridLayout()->replaceWidget(this,splitter);
         SpaceWidget *topWidget = new SpaceWidget;
         splitter->insertWidget(0, topWidget);
         splitter->insertWidget(1,this);
@@ -142,24 +281,54 @@ void SpaceWidget::slotInsertWidgetOnTheTop()
 
 void SpaceWidget::slotInsertWidgetOnTheBottom()
 {
-    QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
-    int index = parentSplitter->indexOf(this);
+    if(this->parentWidget()->inherits("QSplitter")){
+        QSplitter *parentSplitter = static_cast<QSplitter *>(this->parentWidget());
+        int index = parentSplitter->indexOf(this);
 
-    if(parentSplitter->orientation()==Qt::Vertical){
-        parentSplitter->insertWidget(index+1,new SpaceWidget);
+        if(parentSplitter->orientation()==Qt::Vertical){
+            parentSplitter->insertWidget(index+1,new SpaceWidget);
+        }
+        else{
+            QSplitter *splitter = new QSplitter(Qt::Vertical);
+            splitter->setContentsMargins(0,0,0,0);
+            splitter->setHandleWidth(1);
+            parentSplitter->replaceWidget(index,splitter);
+
+
+
+            SpaceWidget *bottomWidget = new SpaceWidget;
+            splitter->insertWidget(0, this);
+            splitter->insertWidget(1,bottomWidget);
+        }
     }
-    else{
+    else if(this->parentWidget()->inherits("Irregularer")){
+        Irregularer *parentIrregularer = static_cast<Irregularer*>(this->parentWidget());
+
         QSplitter *splitter = new QSplitter(Qt::Vertical);
         splitter->setContentsMargins(0,0,0,0);
         splitter->setHandleWidth(1);
-        parentSplitter->replaceWidget(index,splitter);
 
-
+        parentIrregularer->getVBoxLayout()->replaceWidget(this,splitter);
 
         SpaceWidget *bottomWidget = new SpaceWidget;
         splitter->insertWidget(0, this);
         splitter->insertWidget(1,bottomWidget);
     }
+    else if(this->parentWidget()->inherits("Grider")){
+        Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
+        int index = parentGrider->indexOf(this);
+
+        QSplitter *splitter = new QSplitter(Qt::Vertical);
+        splitter->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Preferred);
+        splitter->setContentsMargins(0,0,0,0);
+        splitter->setHandleWidth(1);
+
+        parentGrider->getGridLayout()->replaceWidget(this,splitter);
+        SpaceWidget *bottomWidget = new SpaceWidget;
+        splitter->insertWidget(0, this);
+        splitter->insertWidget(1,bottomWidget);
+    }
+
 
 
 
@@ -199,7 +368,7 @@ void SpaceWidget::slotDeleteThisWidgetAction() {
         }
     }
     else if(this->parentWidget()->inherits("Grider")){
-        qDebug()<<"Grider";
+
         Grider *parentGrider = static_cast<Grider *>(this->parentWidget());
         int index = parentGrider->indexOf(this);
 
@@ -212,11 +381,7 @@ void SpaceWidget::slotDeleteThisWidgetAction() {
 
         QLayoutItem* localTakeAt = parentGrider->getGridLayout()->takeAt(index);
         localTakeAt->widget()->deleteLater();
-        //delete localTakeAt;
-        qDebug()<<index;
-
-
-
+        delete localTakeAt;
 
     }
 }
@@ -234,3 +399,52 @@ void SpaceWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.exec(QCursor::pos());
     event->accept();
 }
+
+
+void SpaceWidget::mousePressEvent(QMouseEvent *event)
+{
+}
+
+void SpaceWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+}
+
+void SpaceWidget::mouseMoveEvent(QMouseEvent *event)
+{
+}
+
+
+void SpaceWidget::paintEvent(QPaintEvent *event)
+{
+    static int count = 0;
+    qDebug()<<count++;
+    if(this->hasFocus()){
+        QPainter painter(this);
+        QPen pen;
+        pen.setColor(Qt::red);
+        pen.setCapStyle(Qt::RoundCap);
+        pen.setJoinStyle(Qt::RoundJoin);
+        painter.setPen(pen);
+
+
+
+
+        QRect contourRect(0,0,geometry().width()-1,geometry().height()-1);
+        qDebug()<<contourRect;
+        painter.drawRect(contourRect);
+    }
+
+}
+
+
+//void SpaceWidget::focusInEvent(QFocusEvent *event)
+//{
+//    //update();
+
+//}
+
+
+//void SpaceWidget::focusOutEvent(QFocusEvent *event)
+//{
+//    //update();
+//}

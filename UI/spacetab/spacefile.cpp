@@ -12,6 +12,8 @@
 #include <QVBoxLayout>
 #include <QVideoWidget>
 #include "grider.h"
+#include "irregularer.h"
+#include <QtMinMax>
 
 
 
@@ -102,7 +104,7 @@ void SpaceFile::contextMenuEvent(QContextMenuEvent *event)
 
 void SpaceFile::mousePressEvent(QMouseEvent *event)
 {
-    if(event->button()==Qt::LeftButton){
+    if(event->button()==Qt::LeftButton && event->modifiers()==Qt::ControlModifier){
         topLeft = event->pos();
     }
 
@@ -111,23 +113,34 @@ void SpaceFile::mousePressEvent(QMouseEvent *event)
 
 void SpaceFile::mouseMoveEvent(QMouseEvent *event)
 {
-    bottomRight = event->pos();
-
-
-    update();
-
+    if(event->modifiers()==Qt::ControlModifier){
+        bottomRight = event->pos();
+        update();
+    }
 }
 
 void SpaceFile::mouseReleaseEvent(QMouseEvent *event)
 {
 
-
-
-    if(event->button()==Qt::LeftButton){
+    if(event->button()==Qt::LeftButton && event->modifiers()==Qt::ControlModifier){
         bottomRight = event->pos();
-        SpaceWidget *spaceWidget = new SpaceWidget(this);
-        spaceWidget->setGeometry(QRect(topLeft,bottomRight));
-        spaceWidget->show();
+        Irregularer *irregularer = new Irregularer(this);
+
+
+
+        QPoint newTopLeft,newBottomRight;
+
+        newTopLeft.rx() = qMin(topLeft.x(),bottomRight.x());
+        newTopLeft.ry() = qMin(topLeft.y(),bottomRight.y());
+        newBottomRight.rx() = qMax(topLeft.x(),bottomRight.x());
+        newBottomRight.ry() = qMax(topLeft.y(),bottomRight.y());
+
+        irregularer->setGeometry(QRect(newTopLeft,newBottomRight));
+        SpaceWidget *spaceWidget = new SpaceWidget;
+        irregularer->addWidget(spaceWidget);
+
+
+        irregularer->show();
     }
 
 
@@ -148,9 +161,9 @@ void SpaceFile::paintEvent(QPaintEvent *event)
     }
 
 
-    int static  count = 0;
-    qDebug()<<"paintEvent"<<count++;
-    event->accept();
+    //int static  count = 0;
+    //qDebug()<<"paintEvent"<<count++;
+    //event->accept();
 
 
 }
