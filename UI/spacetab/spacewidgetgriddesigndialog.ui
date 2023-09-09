@@ -166,7 +166,7 @@
   <customwidget>
    <class>GridTableView</class>
    <extends>QTableView</extends>
-   <header>gridtableview.h</header>
+   <header>UI/spacetab/gridtableview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
